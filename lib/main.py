@@ -1,4 +1,5 @@
 import os
+import subprocess
 from contextlib import asynccontextmanager
 
 import httpx
@@ -60,6 +61,7 @@ def enabled_handler(enabled: bool, nc: NextcloudApp) -> str:
         nc.occ_commands.register("vix:service:stop", "/occ_service_stop")
         nc.occ_commands.register("vix:service:restart", "/occ_service_restart")
         nc.occ_commands.register("vix:service:status", "/occ_service_restart")
+        subprocess.run(["systemctl", "start", "vix.service"])
     else:
         nc.ui.resources.delete_script("top_menu", "vix_service", "js/vix-main")
         nc.ui.top_menu.unregister("vix_service")
@@ -68,6 +70,7 @@ def enabled_handler(enabled: bool, nc: NextcloudApp) -> str:
         nc.occ_commands.unregister("vix:service:stop")
         nc.occ_commands.unregister("vix:service:restart")
         nc.occ_commands.unregister("vix:service:status")
+        subprocess.run(["systemctl", "stop", "vix.service"])
     return ""
 
 
@@ -87,32 +90,68 @@ async def occ_ping():
 
 @APP.post("/occ_service_start")
 async def occ_service_start(data: OccData):
-    # TODO: implement systemctl call to start service
-    return responses.Response(content="<info>Service started</info>\n")
+    systemctl_start = subprocess.Popen(
+        ["systemctl", "start", "vix.service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    exit_code = systemctl_start.wait()
+    output = systemctl_start.communicate()[0]
+
+    if exit_code != 0:
+        return responses.Response(content=f"<error>Vix service failed to start: {output}</error>\n")
+
+    return responses.Response(content="<info>Vix service started</info>\n")
 
 
 @APP.post("/occ_service_stop")
 async def occ_service_stop(data: OccData):
-    # TODO: implement systemctl call to stop service
-    return responses.Response(content="<info>Service stopped</info>\n")
+    systemctl_stop = subprocess.Popen(
+        ["systemctl", "stop", "vix.service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    exit_code = systemctl_stop.wait()
+    output = systemctl_stop.communicate()[0]
+
+    if exit_code != 0:
+        return responses.Response(content=f"<error>Vix service failed to stop: {output}</error>\n")
+
+    return responses.Response(content="<info>Vix service stopped</info>\n")
 
 
 @APP.post("/occ_service_restart")
 async def occ_service_restart(data: OccData):
-    # TODO: implement systemctl call to restart service
-    return responses.Response(content="<info>Service restarted</info>\n")
+    systemctl_restart = subprocess.Popen(
+        ["systemctl", "restart", "vix.service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    exit_code = systemctl_restart.wait()
+    output = systemctl_restart.communicate()[0]
+
+    if exit_code != 0:
+        return responses.Response(content=f"<error>Vix service failed to restart: {output}</error>\n")
+
+    return responses.Response(content="<info>Vix service restarted</info>\n")
 
 
 @APP.post("/occ_service_status")
 async def occ_service_status(data: OccData):
-    # TODO: implement systemctl call to get service status
-    return responses.Response(content="<info>Service status</info>\n")
+    systemctl_status = subprocess.Popen(
+        ["systemctl", "status", "vix.service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    exit_code = systemctl_status.wait()
+    output = systemctl_status.communicate()[0]
+
+    if exit_code != 0:
+        return responses.Response(content=f"<error>Vix service failed to get status: {output}</error>\n")
+
+    return responses.Response(content=f"<info>Vix service status:</info>\n\n{output}")
 
 
 @APP.api_route("/iframe/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"])
 async def proxy_requests(request: Request, path: str):
     async with httpx.AsyncClient() as client:
-        url = f"http://127.0.0.1:8288/{path}"
+        url = f"http://{os.getenv('VIX_HOST')}:{os.getenv('VIX_PORT')}/{path}"
         headers = {key: value for key, value in request.headers.items() if key.lower() != 'host'}
         response = await client.request(
             method=request.method,
