@@ -60,7 +60,7 @@ def enabled_handler(enabled: bool, nc: NextcloudApp) -> str:
         nc.occ_commands.register("vix:service:start", "/occ_service_start")
         nc.occ_commands.register("vix:service:stop", "/occ_service_stop")
         nc.occ_commands.register("vix:service:restart", "/occ_service_restart")
-        nc.occ_commands.register("vix:service:status", "/occ_service_restart")
+        nc.occ_commands.register("vix:service:status", "/occ_service_status")
         subprocess.run(["supervisorctl", "start", "vix"])
     else:
         nc.ui.resources.delete_script("top_menu", "vix_service", "js/vix-main")
