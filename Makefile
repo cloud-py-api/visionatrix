@@ -40,8 +40,8 @@ run28:
 run29:
 	docker exec master-stable29-1 sudo -u www-data php occ app_api:app:unregister vix --silent --force || true
 	docker exec master-stable29-1 sudo -u www-data php occ app_api:app:register vix --force-scopes \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/vix/main/appinfo/info.xml
-
+		--info-xml /info.xml
+# --info-xml https://raw.githubusercontent.com/cloud-py-api/vix/main/appinfo/info.xml
 .PHONY: run
 run:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister vix --silent --force || true

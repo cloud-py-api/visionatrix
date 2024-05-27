@@ -91,7 +91,7 @@ async def occ_ping():
 @APP.post("/occ_service_start")
 async def occ_service_start(data: OccData):
     systemctl_start = subprocess.Popen(
-        ["systemctl", "start", "vix.service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ["supervisorctl", "start", "vix"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
     exit_code = systemctl_start.wait()
@@ -106,7 +106,7 @@ async def occ_service_start(data: OccData):
 @APP.post("/occ_service_stop")
 async def occ_service_stop(data: OccData):
     systemctl_stop = subprocess.Popen(
-        ["systemctl", "stop", "vix.service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ["supervisorctl", "stop", "vix"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
     exit_code = systemctl_stop.wait()
@@ -121,7 +121,7 @@ async def occ_service_stop(data: OccData):
 @APP.post("/occ_service_restart")
 async def occ_service_restart(data: OccData):
     systemctl_restart = subprocess.Popen(
-        ["systemctl", "restart", "vix.service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ["supervisorctl", "restart", "vix"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
     exit_code = systemctl_restart.wait()
@@ -136,7 +136,7 @@ async def occ_service_restart(data: OccData):
 @APP.post("/occ_service_status")
 async def occ_service_status(data: OccData):
     systemctl_status = subprocess.Popen(
-        ["systemctl", "status", "vix.service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ["supervisorctl", "status", "vix"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
     exit_code = systemctl_status.wait()

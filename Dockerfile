@@ -2,24 +2,15 @@ FROM python:3.10-slim
 
 ENV VIX_HOST "127.0.0.1"
 ENV VIX_PORT 8288
+ENV USER_BACKENDS "nextcloud"
 ARG COMPUTE_DEVICE="CUDA"
-
-COPY requirements.txt /
-ADD cs[s] /app/css
-ADD im[g] /app/img
-ADD j[s] /app/js
-ADD l10[n] /app/l10n
-ADD li[b] /app/lib
 
 RUN apt-get update && apt-get install -y git \
 	python3-dev python3-setuptools netcat-traditional \
 	libxml2-dev libxslt1-dev zlib1g-dev g++ \
 	ffmpeg libsm6 libxext6
 
-RUN \
-  python3 -m pip install -r requirements.txt && rm -rf ~/.cache && rm requirements.txt
-
-WORKDIR /app
+WORKDIR /app/service
 
 RUN python3 -m venv venv && venv/bin/python -m pip install -U pip && rm -rf ~/.cache/pip
 
@@ -42,7 +33,7 @@ RUN venv/bin/python -m pip install ./Visionatrix \
 
 # Setup nodejs and npm for building the front-end client
 RUN apt-get update && \
-    apt-get install -y curl gnupg2 build-essential && \
+    apt-get install -y curl gnupg2 build-essential supervisor && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && \
@@ -54,7 +45,21 @@ RUN cd Visionatrix/web && npm install && cd ../ && make build-client-nextcloud &
 # Remove nodejs and npm and clean cache
 RUN apt-get remove -y nodejs npm && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf ~/.cache
 
-COPY vix.service /etc/systemd/system/vix.service
+
+RUN mkdir -p /var/log/supervisor
+RUN mkdir -p /etc/supervisor/conf.d
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+COPY vix.conf /etc/supervisor/conf.d/vix.conf
+
+# Setup ExApp dependencies
+COPY requirements.txt /
+RUN python3 -m pip install -r /requirements.txt && rm -rf ~/.cache && rm /requirements.txt
+
+ADD cs[s] /app/css
+ADD im[g] /app/img
+ADD j[s] /app/js
+ADD l10[n] /app/l10n
+ADD li[b] /app/lib
 
 WORKDIR /app/lib
 ENTRYPOINT ["python3", "main.py"]
