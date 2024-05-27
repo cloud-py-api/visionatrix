@@ -61,7 +61,6 @@ def enabled_handler(enabled: bool, nc: NextcloudApp) -> str:
         nc.occ_commands.register("vix:service:stop", "/occ_service_stop")
         nc.occ_commands.register("vix:service:restart", "/occ_service_restart")
         nc.occ_commands.register("vix:service:status", "/occ_service_status")
-        subprocess.run(["supervisorctl", "start", "vix"])
     else:
         nc.ui.resources.delete_script("top_menu", "vix_service", "js/vix-main")
         nc.ui.top_menu.unregister("vix_service")
@@ -70,7 +69,6 @@ def enabled_handler(enabled: bool, nc: NextcloudApp) -> str:
         nc.occ_commands.unregister("vix:service:stop")
         nc.occ_commands.unregister("vix:service:restart")
         nc.occ_commands.unregister("vix:service:status")
-        subprocess.run(["supervisorctl", "stop", "vix"])
     return ""
 
 
@@ -90,12 +88,12 @@ async def occ_ping():
 
 @APP.post("/occ_service_start")
 async def occ_service_start(data: OccData):
-    systemctl_start = subprocess.Popen(
-        ["supervisorctl", "start", "vix"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    result = subprocess.Popen(
+        ["supervisorctl", "start", "vix_service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
-    exit_code = systemctl_start.wait()
-    output = systemctl_start.communicate()[0]
+    exit_code = result.wait()
+    output = result.communicate()[0]
 
     if exit_code != 0:
         return responses.Response(content=f"<error>Vix service failed to start: {output}</error>\n")
@@ -105,12 +103,12 @@ async def occ_service_start(data: OccData):
 
 @APP.post("/occ_service_stop")
 async def occ_service_stop(data: OccData):
-    systemctl_stop = subprocess.Popen(
-        ["supervisorctl", "stop", "vix"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    result = subprocess.Popen(
+        ["supervisorctl", "stop", "vix_service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
-    exit_code = systemctl_stop.wait()
-    output = systemctl_stop.communicate()[0]
+    exit_code = result.wait()
+    output = result.communicate()[0]
 
     if exit_code != 0:
         return responses.Response(content=f"<error>Vix service failed to stop: {output}</error>\n")
@@ -120,12 +118,12 @@ async def occ_service_stop(data: OccData):
 
 @APP.post("/occ_service_restart")
 async def occ_service_restart(data: OccData):
-    systemctl_restart = subprocess.Popen(
-        ["supervisorctl", "restart", "vix"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    result = subprocess.Popen(
+        ["supervisorctl", "restart", "vix_service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
-    exit_code = systemctl_restart.wait()
-    output = systemctl_restart.communicate()[0]
+    exit_code = result.wait()
+    output = result.communicate()[0]
 
     if exit_code != 0:
         return responses.Response(content=f"<error>Vix service failed to restart: {output}</error>\n")
@@ -135,23 +133,23 @@ async def occ_service_restart(data: OccData):
 
 @APP.post("/occ_service_status")
 async def occ_service_status(data: OccData):
-    systemctl_status = subprocess.Popen(
-        ["supervisorctl", "status", "vix"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    result = subprocess.Popen(
+        ["supervisorctl", "status", "vix_service"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
-    exit_code = systemctl_status.wait()
-    output = systemctl_status.communicate()[0]
+    exit_code = result.wait()
+    output = result.communicate()[0]
 
     if exit_code != 0:
         return responses.Response(content=f"<error>Vix service failed to get status: {output}</error>\n")
 
-    return responses.Response(content=f"<info>Vix service status:</info>\n\n{output}")
+    return responses.Response(content=f"<info>Vix service status:</info>\n\n{str(output)}\n")
 
 
 @APP.api_route("/iframe/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"])
 async def proxy_requests(request: Request, path: str):
     async with httpx.AsyncClient() as client:
-        url = f"http://{os.getenv('VIX_HOST')}:{os.getenv('VIX_PORT')}/{path}"
+        url = f"http://127.0.0.1:8288/{path}"
         headers = {key: value for key, value in request.headers.items() if key.lower() != 'host'}
         response = await client.request(
             method=request.method,

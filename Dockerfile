@@ -45,12 +45,6 @@ RUN cd Visionatrix/web && npm install && cd ../ && make build-client-nextcloud &
 # Remove nodejs and npm and clean cache
 RUN apt-get remove -y nodejs npm && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf ~/.cache
 
-
-RUN mkdir -p /var/log/supervisor
-RUN mkdir -p /etc/supervisor/conf.d
-COPY supervisord.conf /etc/supervisor/supervisord.conf
-COPY vix.conf /etc/supervisor/conf.d/vix.conf
-
 # Setup ExApp dependencies
 COPY requirements.txt /
 RUN python3 -m pip install -r /requirements.txt && rm -rf ~/.cache && rm /requirements.txt
@@ -61,5 +55,12 @@ ADD j[s] /app/js
 ADD l10[n] /app/l10n
 ADD li[b] /app/lib
 
-WORKDIR /app/lib
-ENTRYPOINT ["python3", "main.py"]
+RUN mkdir -p /var/log/supervisor
+RUN mkdir -p /etc/supervisor/conf.d
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+COPY vix.conf /etc/supervisor/conf.d/vix.conf
+COPY vix_service.conf /etc/supervisor/conf.d/vix_service.conf
+
+RUN mkdir -p /nc_app_vix_data/vix_flows && mkdir -p /nc_app_vix_data/vix_models && mkdir -p /nc_app_vix_data/vix_tasks_files
+
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
