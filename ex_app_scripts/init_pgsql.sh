@@ -41,6 +41,7 @@ echo "Starting PostgreSQL..."
 sudo -u postgres ${PG_BIN}/pg_ctl -D "$DATA_DIR" -l "${DATA_DIR}/logfile" start
 
 # Wait for PostgreSQL to start and accept connections
+# TODO: can we check here more precisly that PGSQL has started?
 sleep 7
 
 # Check if the user exists and create if not

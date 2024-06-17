@@ -83,12 +83,6 @@ ADD /ex_app/li[b] /ex_app/lib
 
 WORKDIR /Visionatrix
 
-EXPOSE 8188
-EXPOSE 8288
-
-# FOR DEVELOPMENT ONLY
-ENV VIX_HOST "0.0.0.0"
-
 CMD ["/bin/sh", \
 	"/ex_app_scripts/entrypoint.sh", \
 	"/ex_app/lib/main.py", \

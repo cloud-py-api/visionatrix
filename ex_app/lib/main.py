@@ -11,7 +11,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from nc_py_api import NextcloudApp
 from nc_py_api.ex_app import (
     run_app,
-    set_handlers,
     AppAPIAuthMiddleware,
     nc_app,
 )
@@ -110,7 +109,7 @@ async def proxy_requests(request: Request, path: str):
             cookies=request.cookies,
             content=await request.body()
         )
-        print(f"method={request.method}, path={path}, status={response.status_code}")
+        print(f"method={request.method}, path={path}, status={response.status_code}", flush=True)
         response.headers["content-security-policy"] = "frame-ancestors 'self'"
         return Response(content=response.content, status_code=response.status_code, headers=dict(response.headers))
 

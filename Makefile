@@ -8,11 +8,13 @@ help:
 	@echo "  They should run from the host you are developing on(with activated venv) and not in the container with Nextcloud!"
 	@echo "  "
 	@echo "  build-push        build image and upload to ghcr.io"
+	@echo "  build-push-dev    build image and upload to ghcr.io with 'dev' tag"
 	@echo "  "
+	@echo "  run               install Visionatrix for Nextcloud Last"
 	@echo "  run               install Visionatrix for Nextcloud Last"
 	@echo "  "
 	@echo "  For development of this example use PyCharm run configurations. Development is always set for last Nextcloud."
-	@echo "  First run 'UiExample' and then 'make registerXX', after that you can use/debug/develop it and easy test."
+	@echo "  First run 'Visionatrix', then run 'Vix' and then 'make registerXX', after that you can use/debug/develop it and easy test."
 	@echo "  "
 	@echo "  register          perform registration of running Visionatrix into the 'manual_install' deploy daemon."
 	@echo "  "
@@ -24,21 +26,35 @@ help:
 .PHONY: build-push
 build-push:
 	docker login ghcr.io
-	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/vix:dev .
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/vix:1.0.0 --build-arg BUILD_TYPE=cpu .
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/vix:1.0.0 --build-arg BUILD_TYPE=cuda .
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/vix:1.0.0 --build-arg BUILD_TYPE=rocm .
 
-# --info-xml https://raw.githubusercontent.com/cloud-py-api/vix/main/appinfo/info.xml
+.PHONY: build-push-dev
+build-push-dev:
+	docker login ghcr.io
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/vix:dev --build-arg BUILD_TYPE=cpu .
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/vix:dev --build-arg BUILD_TYPE=cuda .
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/vix:dev --build-arg BUILD_TYPE=rocm .
+
 .PHONY: run
 run:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister vix --silent --force || true
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register vix --force-scopes \
 		--info-xml https://raw.githubusercontent.com/cloud-py-api/vix/main/appinfo/info.xml
 
+.PHONY: run-dev
+run:
+	docker cp ./appinfo/info.xml master-nextcloud-1:/info.xml
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister vix --silent --force || true
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register vix --force-scopes --info-xml /info.xml
+
 .PHONY: register
 register:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister vix --silent --force || true
 	docker exec master-nextcloud-1 rm -rf /tmp/vix_l10n && docker cp l10n master-nextcloud-1:/tmp/vix_l10n
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register vix manual_install --json-info \
-  "{\"id\":\"vix\",\"name\":\"Visionatrix\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":9045,\"scopes\":[\"OCC_COMMAND\", \"NOTIFICATIONS\"],\"system_app\":0, \"translations_folder\":\"\/tmp\/vix_l10n\"}" \
+  "{\"id\":\"vix\",\"name\":\"Visionatrix\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":9100,\"scopes\":[\"AI_PROVIDERS\", \"FILES\", \"USER_INFO\"],\"system_app\":0, \"translations_folder\":\"\/tmp\/vix_l10n\"}" \
   --force-scopes --wait-finish
 
 .PHONY: translation_templates
