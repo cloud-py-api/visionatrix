@@ -16,17 +16,18 @@
 	<bugs>https://github.com/cloud-py-api/vix/issues</bugs>
 	<repository type="git">https://github.com/cloud-py-api/vix</repository>
 	<dependencies>
-		<nextcloud min-version="28" max-version="30"/>
+		<nextcloud min-version="30" max-version="30"/>
 	</dependencies>
 	<external-app>
 		<docker-install>
 			<registry>ghcr.io</registry>
 			<image>cloud-py-api/vix</image>
-			<image-tag>1.0.0</image-tag>
+			<image-tag>dev</image-tag>
 		</docker-install>
 		<scopes>
-			<value>OCC_COMMAND</value>
-			<value>NOTIFICATIONS</value>
+			<value>AI_PROVIDERS</value>
+			<value>FILES</value>
+			<value>USER_INFO</value>
 		</scopes>
 		<system>false</system>
 	</external-app>

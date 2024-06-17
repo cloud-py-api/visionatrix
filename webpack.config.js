@@ -16,7 +16,7 @@ webpackConfig.stats = {
 const appId = 'vix'
 
 webpackConfig.entry = {
-	main: { import: path.join(__dirname, 'src', 'main.js'), filename: appId + '-main.js' },
+	main: { import: path.join(__dirname, 'ex_app', 'src', 'main.js'), filename: appId + '-main.js' },
 }
 
 webpackConfig.module.rules = Object.values(webpackRules)
@@ -24,16 +24,20 @@ webpackConfig.module.rules = Object.values(webpackRules)
 webpackConfig.plugins.push(
 	new ESLintPlugin({
 		extensions: ['js', 'vue'],
-		files: 'src',
+		files: 'ex_app/src',
 		failOnError: !isDev,
 	})
 )
 
 webpackConfig.plugins.push(
 	new StyleLintPlugin({
-		files: 'src/**/*.{css,scss,vue}',
+		files: 'ex_app/src/**/*.{css,scss,vue}',
 		failOnError: !isDev,
 	}),
 )
+
+webpackConfig.output = {
+	path: path.resolve(__dirname, 'ex_app/js'),
+}
 
 module.exports = webpackConfig

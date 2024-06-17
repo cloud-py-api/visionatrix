@@ -40,7 +40,7 @@ export default {
 		return {
 			error: null,
 			loading: true,
-			iframeSrc: generateUrl(`${APP_API_PROXY_URL_PREFIX}/${EX_APP_ID}/iframe`),
+			iframeSrc: generateUrl(`${APP_API_PROXY_URL_PREFIX}/${EX_APP_ID}/`),
 		}
 	},
 	mounted() {
