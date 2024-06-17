@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <info>
 	<id>vix</id>
-	<name>Visionatrix</name>
-	<summary>Visionatrix service in your Nextcloud</summary>
+	<name>Nextcloud Vix</name>
+	<summary>Nextcloud Vix - scalable AI Media processing</summary>
 	<description>
-	<![CDATA[AI Media processing using ComfyUI]]>
+	<![CDATA[Nextcloud Vix is a standalone Visionatrix service that allows you to process your media files right in your Nextcloud.
+Each user has their own Visionatrix account (authenticated using Nextcloud credentials) and tasks history.]]>
 	</description>
 	<version>1.0.0</version>
 	<licence>MIT</licence>
