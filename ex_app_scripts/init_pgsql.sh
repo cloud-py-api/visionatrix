@@ -30,19 +30,25 @@ fi
 mkdir -p "$DATA_DIR"
 chown -R postgres:postgres "$DATA_DIR"
 
-# Initialize the database, if not already initialized
 if [ ! -d "$DATA_DIR/base" ]; then
     echo "Initializing the PostgreSQL database..."
     sudo -u postgres ${PG_BIN}/initdb -D "$DATA_DIR"
+    PG_CONF="${DATA_DIR}/postgresql.conf"
+    if ! grep -q "^listen_addresses\s*=\s*''" "$PG_CONF"; then
+		echo "Updating PostgreSQL configuration to disable TCP/IP connections..."
+		echo "listen_addresses = ''" >> "$PG_CONF"
+	fi
 fi
 
-# Start PostgreSQL manually
 echo "Starting PostgreSQL..."
 sudo -u postgres ${PG_BIN}/pg_ctl -D "$DATA_DIR" -l "${DATA_DIR}/logfile" start
 
-# Wait for PostgreSQL to start and accept connections
-# TODO: can we check here more precisly that PGSQL has started?
-sleep 7
+echo "Waiting for PostgreSQL to start..."
+until sudo -u postgres ${PG_SQL} -c "SELECT 1" > /dev/null 2>&1; do
+    sleep 1
+    echo -n "."
+done
+echo "PostgreSQL is up and running."
 
 # Check if the user exists and create if not
 sudo -u postgres $PG_SQL -c "SELECT 1 FROM pg_user WHERE usename = '$DB_USER'" | grep -q 1 || \
@@ -55,8 +61,8 @@ sudo -u postgres $PG_SQL -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
 
 if [ -z "${DATABASE_URI}" ]; then
     # Set DATABASE_URI environment variable
-    DATABASE_URI="postgresql+psycopg://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME"
-    echo "export DATABASE_URI=\"postgresql+psycopg://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME\"" >> /etc/environment
+    DATABASE_URI="postgresql+psycopg://$DB_USER:$DB_PASS@/$DB_NAME?host=/var/run/postgresql"
+    echo "export DATABASE_URI=\"postgresql+psycopg://$DB_USER:$DB_PASS@/$DB_NAME?host=/var/run/postgresql\"" >> /etc/environment
     echo "DATABASE_URI was not set. It is now set to: $DATABASE_URI"
 else
     echo "DATABASE_URI is already set to: $DATABASE_URI"
