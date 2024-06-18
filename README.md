@@ -2,7 +2,7 @@
 
 Introduce the scalable AI Media processing for Nextcloud.
 
-![Nextcloud Vix](/screenshots/vix_1.jpg)
+![Nextcloud Vix](/screenshots/vix_1.png)
 ![Nextcloud Vix](/screenshots/vix_2.png)
 
 Nextcloud Vix is a standalone [Visionatrix](https://github.com/Visionatrix/Visionatrix) service that allows you to process your media files right in your Nextcloud.
