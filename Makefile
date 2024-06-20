@@ -8,10 +8,8 @@ help:
 	@echo "  They should run from the host you are developing on(with activated venv) and not in the container with Nextcloud!"
 	@echo "  "
 	@echo "  build-push        build image and upload to ghcr.io"
-	@echo "  build-push-dev    build image and upload to ghcr.io with the 'dev' tag"
 	@echo "  "
 	@echo "  run               install Visionatrix for Nextcloud Last"
-	@echo "  run-dev           install Visionatrix for Nextcloud Last from the 'dev' tag"
 	@echo "  "
 	@echo "  For development of this example use PyCharm run configurations. Development is always set for last Nextcloud."
 	@echo "  First run 'Visionatrix', then run 'Vix' and then 'make registerXX', after that you can use/debug/develop it and easy test."
@@ -32,31 +30,18 @@ build-push-cpu:
 .PHONY: build-push-cuda
 build-push-cuda:
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/vix:1.0.0 --build-arg BUILD_TYPE=cuda .
+	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/vix-cuda:1.0.0 --build-arg BUILD_TYPE=cuda .
 
 .PHONY: build-push-rocm
 build-push-rocm:
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/vix:1.0.0 --build-arg BUILD_TYPE=rocm .
-
-.PHONY: build-push-dev
-build-push-dev:
-	docker login ghcr.io
-	#docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/vix:dev --build-arg BUILD_TYPE=cpu .
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/vix:dev --build-arg BUILD_TYPE=cuda .
-	#docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/vix:dev --build-arg BUILD_TYPE=rocm .
+	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/vix-rocm:1.0.0 --build-arg BUILD_TYPE=rocm .
 
 .PHONY: run
 run:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister vix --silent --force || true
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register vix --force-scopes \
 		--info-xml https://raw.githubusercontent.com/cloud-py-api/vix/main/appinfo/info.xml
-
-.PHONY: run-dev
-run-dev:
-	docker cp ./appinfo/info.xml master-nextcloud-1:/info.xml
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister vix --silent --force || true
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register vix --force-scopes --info-xml /info.xml
 
 .PHONY: register
 register:
