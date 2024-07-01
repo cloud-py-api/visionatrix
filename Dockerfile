@@ -17,11 +17,11 @@ RUN apt-get update && apt-get install -y git \
 	libxml2-dev libxslt1-dev zlib1g-dev g++ \
 	ffmpeg libsm6 libxext6 lsb-release sudo wget procps nano
 
-ARG VISIONATRIX_VERSION="v0.5.0.dev0"
+ARG VISIONATRIX_VERSION="v0.6.0"
 
 RUN git clone https://github.com/Visionatrix/Visionatrix.git /Visionatrix && \
-    cd /Visionatrix
-#    git checkout tags/$VISIONATRIX_VERSION
+    cd /Visionatrix && \
+    git checkout tags/$VISIONATRIX_VERSION
 
 RUN cd /Visionatrix && python3 -m venv venv && venv/bin/python -m pip install -U pip && rm -rf ~/.cache/pip
 
@@ -40,8 +40,7 @@ RUN cd /Visionatrix && \
 	rm -rf ~/.cache/pip
 
 RUN cd /Visionatrix && \
-    venv/bin/python -m pip install "psycopg[binary]" && \
-    venv/bin/python -m pip install "greenlet" && \
+    venv/bin/python -m pip install "psycopg[binary]" greenlet && \
     venv/bin/python -m pip install . && \
 	venv/bin/python -m visionatrix install && \
 	rm -rf ~/.cache/pip

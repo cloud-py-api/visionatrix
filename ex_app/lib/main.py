@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 import httpx
 from starlette.responses import Response, FileResponse
-from fastapi import FastAPI, responses, Request, Depends, BackgroundTasks
+from fastapi import FastAPI, responses, Request, Depends, BackgroundTasks, status
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from nc_py_api import NextcloudApp
@@ -47,7 +47,7 @@ async def lifespan(_app: FastAPI):
 
 
 APP = FastAPI(lifespan=lifespan)
-# APP.add_middleware(AppAPIAuthMiddleware)
+APP.add_middleware(AppAPIAuthMiddleware)
 # APP.add_middleware(LocalizationMiddleware)
 
 
@@ -78,40 +78,52 @@ def enabled_callback(enabled: bool, nc: typing.Annotated[NextcloudApp, Depends(n
     return responses.JSONResponse(content={"error": enabled_handler(enabled, nc)})
 
 
-@APP.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"])
-async def proxy_requests(request: Request, path: str):
-    print(f"proxy_requests: {path} - {request.method}\nCookies: {request.cookies}", flush=True)
-    if path.startswith("ex_app"):
-        file_server_path = Path("/" + path)
-    elif not path:
-        file_server_path = Path("/Visionatrix/visionatrix/client/index.html")
-    else:
-        file_server_path = Path("/Visionatrix/visionatrix/client/" + path)
-    if file_server_path.exists():
-        media_type = None
-        if str(file_server_path).endswith(".js"):
-            media_type = "application/javascript"
-        response = FileResponse(str(file_server_path), media_type=media_type)
-        response.headers["content-security-policy"] = "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["X-Permitted-Cross-Domain-Policies"] = "all"
-        print("proxy_FRONTEND_requests: <OK> Returning: ", str(file_server_path), flush=True)
-        return response
-
+@APP.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"])
+async def proxy_backend_requests(request: Request, path: str):
+    # print(f"proxy_BACKEND_requests: {path} - {request.method}\nCookies: {request.cookies}", flush=True)
     async with httpx.AsyncClient() as client:
-        url = f"http://127.0.0.1:8288/{path}"
-        headers = {key: value for key, value in request.headers.items() if key.lower() != 'host'}
-        response = await client.request(
-            method=request.method,
-            url=url,
-            params=request.query_params,
-            headers=headers,
-            cookies=request.cookies,
-            content=await request.body()
-        )
-        print(f"method={request.method}, path={path}, status={response.status_code}", flush=True)
-        response.headers["content-security-policy"] = "frame-ancestors 'self'"
-        return Response(content=response.content, status_code=response.status_code, headers=dict(response.headers))
+        url = f"http://127.0.0.1:8288/api/{path}"
+        headers = {key: value for key, value in request.headers.items() if key.lower() not in ("host", 'cookie')}
+        # print(f"proxy_BACKEND_requests: method={request.method}, path={path}, status={response.status_code}")
+        if request.method == "GET":
+            response = await client.get(
+                url,
+                params=request.query_params,
+                cookies=request.cookies,
+                headers=headers,
+            )
+        else:
+            response = await client.request(
+                method=request.method,
+                url=url,
+                params=request.query_params,
+                headers=headers,
+                cookies=request.cookies,
+                content=await request.body(),
+            )
+        # print(
+        #     f"proxy_BACKEND_requests: method={request.method}, path={path}, status={response.status_code}", flush=True
+        # )
+        response_header = dict(response.headers)
+        response_header.pop("transfer-encoding", None)
+        return Response(content=response.content, status_code=response.status_code, headers=response_header)
+
+
+@APP.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"])
+async def proxy_requests(_request: Request, path: str):
+    print(f"proxy_requests: {path} - {_request.method}\nCookies: {_request.cookies}", flush=True)
+    if path.startswith("ex_app"):
+        file_server_path = Path("../../" + path)
+    elif not path:
+        file_server_path = Path("../../Visionatrix/visionatrix/client/index.html")
+    else:
+        file_server_path = Path("../../Visionatrix/visionatrix/client/" + path)
+    if not file_server_path.exists():
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    response = FileResponse(str(file_server_path))
+    response.headers["content-security-policy"] = "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"
+    print("proxy_FRONTEND_requests: <OK> Returning: ", str(file_server_path), flush=True)
+    return response
 
 
 if __name__ == "__main__":
