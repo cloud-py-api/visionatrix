@@ -15,13 +15,15 @@ ENV VIX_SERVER_FULL_MODELS "1"
 RUN apt-get update && apt-get install -y git \
 	python3-dev python3-setuptools netcat-traditional \
 	libxml2-dev libxslt1-dev zlib1g-dev g++ \
-	ffmpeg libsm6 libxext6 lsb-release sudo wget procps nano
+	ffmpeg libsm6 libxext6 lsb-release sudo wget procps nano xmlstarlet
 
-ARG VISIONATRIX_VERSION="v0.6.0"
+COPY appinfo/info.xml /info.xml
 
-RUN git clone https://github.com/Visionatrix/Visionatrix.git /Visionatrix && \
+RUN VISIONATRIX_VERSION=$(xmlstarlet sel -t -v "//image-tag" /info.xml) && \
+    git clone https://github.com/Visionatrix/Visionatrix.git /Visionatrix && \
     cd /Visionatrix && \
-    git checkout tags/$VISIONATRIX_VERSION
+    git checkout tags/v$VISIONATRIX_VERSION && \
+    rm /info.xml
 
 RUN cd /Visionatrix && python3 -m venv venv && venv/bin/python -m pip install -U pip && rm -rf ~/.cache/pip
 
@@ -58,7 +60,7 @@ RUN cd /Visionatrix && \
     rm -rf visionatrix/client && \
     cd web && \
     npm install && \
-    NUXT_APP_BASE_URL="/index.php/apps/app_api/proxy/vix/" npm run build && \
+    NUXT_APP_BASE_URL="/index.php/apps/app_api/proxy/visionatrix/" npm run build && \
 	cp -r .output/public ../visionatrix/client && \
     rm -rf node_modules
 
@@ -85,6 +87,4 @@ WORKDIR /Visionatrix
 CMD ["/bin/sh", \
 	"/ex_app_scripts/entrypoint.sh", \
 	"/ex_app/lib/main.py", \
-	"/Visionatrix/venv/bin/python -m visionatrix run --mode=SERVER --disable-smart-memory", \
-	"sleep10", \
-	"/Visionatrix/venv/bin/python -m visionatrix run --mode=WORKER --disable-smart-memory"]
+	"/ex_app_scripts/run_visionatrix.sh"]

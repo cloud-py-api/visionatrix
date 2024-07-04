@@ -1,5 +1,5 @@
 <template>
-	<NcContent app-name="vix">
+	<NcContent app-name="visionatrix">
 		<NcAppContent>
 			<IframeView />
 		</NcAppContent>

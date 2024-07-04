@@ -2,17 +2,17 @@
 	<div class="iframe-ui-viewer">
 		<iframe
 			v-show="!error && !loading"
-			id="vix-iframe"
+			id="visionatrix-iframe"
 			ref="iframe"
-			:name="'vix-iframe'"
-			class="vix__iframe"
+			:name="'visionatrix-iframe'"
+			class="visionatrix__iframe"
 			allow="clipboard-read *; clipboard-write *"
 			:src="iframeSrc" />
 		<NcLoadingIcon v-if="loading" :size="48" />
 		<NcEmptyContent
 			v-if="error && !loading"
-			:name="t('vix', 'Failed to load service iframe')"
-			:description="t('vix', 'Please try again.')">
+			:name="t('visionatrix', 'Failed to load service iframe')"
+			:description="t('visionatrix', 'Please try again.')">
 			<template #icon>
 				<AlertCircleIcon :size="20" />
 			</template>
@@ -70,7 +70,7 @@ export default {
 	height: 100%;
 }
 
-.vix__iframe {
+.visionatrix__iframe {
 	width: 100%;
 	height: 100%;
 	flex-grow: 1;

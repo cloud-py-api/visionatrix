@@ -1,0 +1,52 @@
+name: Publish ROCM
+
+on:
+  workflow_dispatch:
+
+jobs:
+  push_to_registry:
+    name: Build image
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'cloud-py-api' }}
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+
+      - name: Install xmlstarlet
+        run: sudo apt-get update && sudo apt-get install -y xmlstarlet
+
+      - name: Extract version from XML
+        id: extract_version
+        run: |
+          VERSION=$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "Extracted version: ${{ VERSION }}"
+
+      - name: Build container image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: .
+          platforms: linux/amd64
+          file: Dockerfile
+          tags: ghcr.io/cloud-py-api/visionatrix-nc-rocm:${{ env.VERSION }}
+          load: true
+          build-args: |
+            BUILD_TYPE=cuda

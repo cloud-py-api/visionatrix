@@ -26,4 +26,5 @@ local
 .run/
 .venv
 venv
+dev
 Visionatrix

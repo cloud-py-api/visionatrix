@@ -42,7 +42,7 @@ class LocalizationMiddleware(BaseHTTPMiddleware):
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    print(_("Vix"))
+    print(_("Visionatrix"))
     yield
 
 
@@ -54,11 +54,11 @@ APP.add_middleware(AppAPIAuthMiddleware)
 def enabled_handler(enabled: bool, nc: NextcloudApp) -> str:
     print(f"enabled={enabled}")
     if enabled:
-        nc.ui.resources.set_script("top_menu", "vix_service", "ex_app/js/vix-main")
-        nc.ui.top_menu.register("vix_service", "Visionatrix", "ex_app/img/app.svg")
+        nc.ui.resources.set_script("top_menu", "visionatrix", "ex_app/js/visionatrix-main")
+        nc.ui.top_menu.register("visionatrix", "Visionatrix", "ex_app/img/app.svg")
     else:
-        nc.ui.resources.delete_script("top_menu", "vix_service", "ex_app/js/vix-main")
-        nc.ui.top_menu.unregister("vix_service")
+        nc.ui.resources.delete_script("top_menu", "visionatrix", "ex_app/js/visionatrix-main")
+        nc.ui.top_menu.unregister("visionatrix")
     return ""
 
 

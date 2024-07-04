@@ -1,14 +1,14 @@
 {
-  "name": "vix",
+  "name": "visionatrix",
   "description": "Visionatrix service in your Nextcloud",
   "version": "1.0.0",
-  "homepage": "https://github.com/cloud-py-api/vix",
+  "homepage": "https://github.com/cloud-py-api/visionatrix",
   "bugs": {
-    "url": "https://github.com/cloud-py-api/vix/issues"
+    "url": "https://github.com/cloud-py-api/visionatrix/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cloud-py-api/vix"
+    "url": "https://github.com/cloud-py-api/visionatrix"
   },
   "license": "agpl",
   "private": true,

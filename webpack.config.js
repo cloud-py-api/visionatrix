@@ -13,7 +13,7 @@ webpackConfig.stats = {
 	modules: false,
 }
 
-const appId = 'vix'
+const appId = 'visionatrix'
 
 webpackConfig.entry = {
 	main: { import: path.join(__dirname, 'ex_app', 'src', 'main.js'), filename: appId + '-main.js' },

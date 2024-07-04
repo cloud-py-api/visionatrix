@@ -1,29 +1,29 @@
 <?xml version="1.0"?>
 <info>
-	<id>vix</id>
-	<name>Nextcloud Vix</name>
-	<summary>Nextcloud Vix - scalable AI Media processing</summary>
+	<id>visionatrix</id>
+	<name>Visionatrix</name>
+	<summary>Visionatrix - scalable AI Media processing</summary>
 	<description>
-	<![CDATA[Nextcloud Vix is a standalone Visionatrix service that allows you to process your media files right in your Nextcloud.
+	<![CDATA[Nextcloud Visionatrix is a standalone Visionatrix service that allows you to process your media files right in your Nextcloud.
 Each user has their own Visionatrix account (authenticated using Nextcloud credentials) and tasks history.]]>
 	</description>
 	<version>1.0.0</version>
 	<licence>MIT</licence>
 	<author mail="andrey18106x@gmail.com" homepage="https://github.com/andrey18106">Andrey Borysenko</author>
 	<author mail="bigcat88@icloud.com" homepage="https://github.com/bigcat88">Alexander Piskun</author>
-	<namespace>Vix</namespace>
+	<namespace>Visionatrix</namespace>
 	<category>tools</category>
-	<website>https://github.com/cloud-py-api/vix</website>
-	<bugs>https://github.com/cloud-py-api/vix/issues</bugs>
-	<repository type="git">https://github.com/cloud-py-api/vix</repository>
+	<website>https://github.com/cloud-py-api/visionatrix-nc</website>
+	<bugs>https://github.com/cloud-py-api/visionatrix-nc/issues</bugs>
+	<repository type="git">https://github.com/cloud-py-api/visionatrix-nc</repository>
 	<dependencies>
 		<nextcloud min-version="30" max-version="30"/>
 	</dependencies>
 	<external-app>
 		<docker-install>
 			<registry>ghcr.io</registry>
-			<image>cloud-py-api/vix</image>
-			<image-tag>1.0.0</image-tag>
+			<image>cloud-py-api/visionatrix</image>
+			<image-tag>0.6.0</image-tag>
 		</docker-install>
 		<scopes>
 			<value>AI_PROVIDERS</value>
