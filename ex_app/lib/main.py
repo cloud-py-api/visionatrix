@@ -1,23 +1,17 @@
 import os
 import typing
-from pathlib import Path
 from contextlib import asynccontextmanager
+from contextvars import ContextVar
+from gettext import translation
+from pathlib import Path
 
 import httpx
-from starlette.responses import Response, FileResponse
-from fastapi import FastAPI, responses, Request, Depends, BackgroundTasks, status
-from starlette.middleware.base import BaseHTTPMiddleware
-
+from fastapi import BackgroundTasks, Depends, FastAPI, Request, responses, status
 from nc_py_api import NextcloudApp
-from nc_py_api.ex_app import (
-    run_app,
-    AppAPIAuthMiddleware,
-    nc_app,
-)
+from nc_py_api.ex_app import AppAPIAuthMiddleware, nc_app, run_app
 from nc_py_api.ex_app.integration_fastapi import fetch_models_task
-from contextvars import ContextVar
-
-from gettext import translation
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import FileResponse, Response
 
 LOCALE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "locale")
 current_translator = ContextVar("current_translator")
@@ -30,14 +24,11 @@ def _(text):
 
 class LocalizationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        request_lang = request.headers.get('Accept-Language', 'en')
+        request_lang = request.headers.get("Accept-Language", "en")
         print(f"DEBUG: lang={request_lang}")
-        translator = translation(
-            os.getenv("APP_ID"), LOCALE_DIR, languages=[request_lang], fallback=True
-        )
+        translator = translation(os.getenv("APP_ID"), LOCALE_DIR, languages=[request_lang], fallback=True)
         current_translator.set(translator)
-        response = await call_next(request)
-        return response
+        return await call_next(request)
 
 
 @asynccontextmanager
@@ -78,12 +69,15 @@ def enabled_callback(enabled: bool, nc: typing.Annotated[NextcloudApp, Depends(n
     return responses.JSONResponse(content={"error": enabled_handler(enabled, nc)})
 
 
-@APP.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"])
+@APP.api_route(
+    "/api/{path:path}",
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"],
+)
 async def proxy_backend_requests(request: Request, path: str):
     # print(f"proxy_BACKEND_requests: {path} - {request.method}\nCookies: {request.cookies}", flush=True)
     async with httpx.AsyncClient() as client:
         url = f"http://127.0.0.1:8288/api/{path}"
-        headers = {key: value for key, value in request.headers.items() if key.lower() not in ("host", 'cookie')}
+        headers = {key: value for key, value in request.headers.items() if key.lower() not in ("host", "cookie")}
         # print(f"proxy_BACKEND_requests: method={request.method}, path={path}, status={response.status_code}")
         if request.method == "GET":
             response = await client.get(
@@ -106,12 +100,22 @@ async def proxy_backend_requests(request: Request, path: str):
         # )
         response_header = dict(response.headers)
         response_header.pop("transfer-encoding", None)
-        return Response(content=response.content, status_code=response.status_code, headers=response_header)
+        return Response(
+            content=response.content,
+            status_code=response.status_code,
+            headers=response_header,
+        )
 
 
-@APP.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"])
+@APP.api_route(
+    "/{path:path}",
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"],
+)
 async def proxy_requests(_request: Request, path: str):
-    print(f"proxy_requests: {path} - {_request.method}\nCookies: {_request.cookies}", flush=True)
+    print(
+        f"proxy_requests: {path} - {_request.method}\nCookies: {_request.cookies}",
+        flush=True,
+    )
     if path.startswith("ex_app"):
         file_server_path = Path("../../" + path)
     elif not path:
