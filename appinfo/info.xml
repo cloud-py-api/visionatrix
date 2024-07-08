@@ -23,7 +23,7 @@ Each user has their own Visionatrix account (authenticated using Nextcloud crede
 		<docker-install>
 			<registry>ghcr.io</registry>
 			<image>cloud-py-api/visionatrix</image>
-			<image-tag>0.7.0</image-tag>
+			<image-tag>0.7.1</image-tag>
 		</docker-install>
 		<scopes>
 			<value>AI_PROVIDERS</value>

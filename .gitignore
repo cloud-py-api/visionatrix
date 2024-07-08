@@ -20,6 +20,7 @@ coverage/
 vendor
 .php-cs-fixer.cache
 .phpunit.result.cache
+.env
 
 __pycache__
 local
