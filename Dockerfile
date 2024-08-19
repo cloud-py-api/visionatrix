@@ -70,6 +70,7 @@ RUN cd /Visionatrix && \
 # Setup ExApp dependencies
 COPY ex_app_scripts/init_pgsql.sh /ex_app_scripts/init_pgsql.sh
 COPY ex_app_scripts/entrypoint.sh /ex_app_scripts/entrypoint.sh
+COPY ex_app_scripts/run_visionatrix.sh /ex_app_scripts/run_visionatrix.sh
 
 RUN chmod +x /ex_app_scripts/*.sh
 
