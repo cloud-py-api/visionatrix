@@ -20,12 +20,19 @@ coverage/
 vendor
 .php-cs-fixer.cache
 .phpunit.result.cache
+
+# Environments
 .env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
 
 __pycache__
 local
 .run/
-.venv
-venv
 dev
 Visionatrix

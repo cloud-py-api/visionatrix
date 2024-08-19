@@ -5,7 +5,7 @@ ARG BUILD_TYPE
 # Visionatrix enviroment variables
 ENV VIX_HOST="127.0.0.1"
 ENV VIX_PORT=8288
-ENV USER_BACKENDS="nextcloud"
+ENV USER_BACKENDS="vix_db;nextcloud"
 ENV FLOWS_DIR="/nc_app_vix_data/vix_flows"
 ENV MODELS_DIR="/nc_app_vix_data/vix_models"
 ENV TASKS_FILES_DIR="/nc_app_vix_data/vix_tasks_files"
@@ -33,7 +33,7 @@ RUN cd /Visionatrix && \
         echo "Installing PyTorch for ARM64"; \
         venv/bin/python -m pip install torch torchvision torchaudio; \
     elif [ "$BUILD_TYPE" = "rocm" ]; then \
-        venv/bin/python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.0; \
+        venv/bin/python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1; \
     elif [ "$BUILD_TYPE" = "cpu" ]; then \
         venv/bin/python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
     else \

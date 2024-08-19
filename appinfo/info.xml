@@ -5,7 +5,9 @@
 	<summary>Visionatrix - scalable AI Media processing</summary>
 	<description>
 	<![CDATA[Nextcloud Visionatrix is a standalone Visionatrix service that allows you to process your media files right in your Nextcloud.
-Each user has their own Visionatrix account (authenticated using Nextcloud credentials) and tasks history.]]>
+Each user has their own Visionatrix account (authenticated using Nextcloud credentials) and tasks history.
+
+Can be used from within Nextcloud Assistant as a regular "txt2img" image provider.]]>
 	</description>
 	<version>1.0.0</version>
 	<licence>MIT</licence>
@@ -13,23 +15,28 @@ Each user has their own Visionatrix account (authenticated using Nextcloud crede
 	<author mail="bigcat88@icloud.com" homepage="https://github.com/bigcat88">Alexander Piskun</author>
 	<namespace>Visionatrix</namespace>
 	<category>tools</category>
-	<website>https://github.com/cloud-py-api/visionatrix-nc</website>
-	<bugs>https://github.com/cloud-py-api/visionatrix-nc/issues</bugs>
-	<repository type="git">https://github.com/cloud-py-api/visionatrix-nc</repository>
+	<website>https://github.com/cloud-py-api/visionatrix</website>
+	<bugs>https://github.com/cloud-py-api/visionatrix/issues</bugs>
+	<repository type="git">https://github.com/cloud-py-api/visionatrix</repository>
 	<dependencies>
-		<nextcloud min-version="30" max-version="30"/>
+		<nextcloud min-version="30" max-version="31"/>
 	</dependencies>
 	<external-app>
 		<docker-install>
 			<registry>ghcr.io</registry>
 			<image>cloud-py-api/visionatrix</image>
-			<image-tag>0.7.1</image-tag>
+			<image-tag>1.0.0</image-tag>
 		</docker-install>
 		<scopes>
 			<value>AI_PROVIDERS</value>
 			<value>FILES</value>
 			<value>USER_INFO</value>
 		</scopes>
-		<system>false</system>
+		<route>
+			<url>.*</url>
+			<verb>GET,POST,PUT,DELETE</verb>
+			<access_level>USER</access_level>
+			<headers_to_exclude>[]</headers_to_exclude>
+		</route>
 	</external-app>
 </info>

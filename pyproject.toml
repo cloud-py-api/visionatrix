@@ -7,7 +7,7 @@ preview = true
 line-length = 120
 target-version = "py310"
 select = ["A", "B", "C", "E", "F", "G", "I", "S", "SIM", "PIE", "Q", "RET", "RUF", "UP" , "W"]
-extend-ignore = ["I001", "RUF100", "D400", "D415"]
+extend-ignore = ["I001", "RUF100", "D400", "D415", "S602"]
 
 [tool.isort]
 profile = "black"
