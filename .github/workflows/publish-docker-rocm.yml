@@ -47,4 +47,4 @@ jobs:
           file: Dockerfile
           tags: ghcr.io/cloud-py-api/visionatrix:${{ env.VERSION }}-rocm
           build-args: |
-            BUILD_TYPE=cuda
+            BUILD_TYPE=rocm
