@@ -30,12 +30,12 @@ build-push-cpu:
 .PHONY: build-push-cuda
 build-push-cuda:
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix-cuda:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml) --build-arg BUILD_TYPE=cuda .
+	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)-cuda --build-arg BUILD_TYPE=cuda .
 
 .PHONY: build-push-rocm
 build-push-rocm:
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix-rocm:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml) --build-arg BUILD_TYPE=rocm .
+	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)-rocm --build-arg BUILD_TYPE=rocm .
 
 .PHONY: run30
 run30:
