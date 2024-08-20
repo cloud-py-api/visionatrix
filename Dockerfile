@@ -59,7 +59,7 @@ RUN apt-get update && \
 RUN cd /Visionatrix && \
     rm -rf visionatrix/client && \
     cd web && \
-    npm install && \
+    npm ci && \
     NUXT_APP_BASE_URL="/index.php/apps/app_api/proxy/visionatrix/" npm run build && \
 	cp -r .output/public ../visionatrix/client && \
     rm -rf node_modules

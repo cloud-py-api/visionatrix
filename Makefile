@@ -24,16 +24,19 @@ help:
 
 .PHONY: build-push-cpu
 build-push-cpu:
+	npm ci && npm run build
 	docker login ghcr.io
 	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml) --build-arg BUILD_TYPE=cpu .
 
 .PHONY: build-push-cuda
 build-push-cuda:
+	npm ci && npm run build
 	docker login ghcr.io
 	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)-cuda --build-arg BUILD_TYPE=cuda .
 
 .PHONY: build-push-rocm
 build-push-rocm:
+	npm ci && npm run build
 	docker login ghcr.io
 	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)-rocm --build-arg BUILD_TYPE=rocm .
 
