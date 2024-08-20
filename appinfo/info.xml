@@ -32,11 +32,13 @@ Can be used from within Nextcloud Assistant as a regular "txt2img" image provide
 			<value>FILES</value>
 			<value>USER_INFO</value>
 		</scopes>
-		<route>
-			<url>.*</url>
-			<verb>GET,POST,PUT,DELETE</verb>
-			<access_level>USER</access_level>
-			<headers_to_exclude>[]</headers_to_exclude>
-		</route>
+		<routes>
+			<route>
+				<url>.*</url>
+				<verb>GET,POST,PUT,DELETE</verb>
+				<access_level>USER</access_level>
+				<headers_to_exclude>[]</headers_to_exclude>
+			</route>
+		</routes>
 	</external-app>
 </info>
