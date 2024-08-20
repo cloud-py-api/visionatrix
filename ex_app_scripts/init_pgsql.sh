@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Environment variables
-DB_NAME=${APP_ID:-vix}
-DB_USER=${APP_ID:-vix_user}
-DB_PASS=${APP_ID:-vix_pass}
-BASE_DIR="${APP_PERSISTENT_STORAGE:-/nc_app_vix_data}"
+DB_NAME=${APP_ID:-visionatrix}
+DB_USER=${APP_ID:-visionatrix}
+DB_PASS=${APP_ID:-visionatrix}
+BASE_DIR="${APP_PERSISTENT_STORAGE:-/nc_app_visionatrix_data}"
 
 # PostgreSQL version to use
 PG_VERSION=15
