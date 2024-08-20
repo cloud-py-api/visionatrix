@@ -6,9 +6,9 @@ ARG BUILD_TYPE
 ENV VIX_HOST="127.0.0.1"
 ENV VIX_PORT=8288
 ENV USER_BACKENDS="vix_db;nextcloud"
-ENV FLOWS_DIR="/nc_app_vix_data/vix_flows"
-ENV MODELS_DIR="/nc_app_vix_data/vix_models"
-ENV TASKS_FILES_DIR="/nc_app_vix_data/vix_tasks_files"
+ENV FLOWS_DIR="/nc_app_visionatrix_data/vix_flows"
+ENV MODELS_DIR="/nc_app_visionatrix_data/vix_models"
+ENV TASKS_FILES_DIR="/nc_app_visionatrix_data/vix_tasks_files"
 ENV BACKEND_DIR="/Visionatrix/vix_backend"
 ENV VIX_SERVER_FULL_MODELS="1"
 
