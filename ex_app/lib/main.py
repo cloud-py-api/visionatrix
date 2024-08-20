@@ -106,6 +106,7 @@ def get_task_progress(
     nc = NextcloudApp()
     if error:
         nc.providers.task_processing.report_result(nc_task_id, None, error)
+        # to-do: here if task is not found on the NC side we should cancel it in the Visionatrix
         return
     if progress == 100.0:
         with httpx.Client(
@@ -206,24 +207,7 @@ def background_tasks_polling():
     basic_auth = httpx.BasicAuth(SUPERUSER_NAME, SUPERUSER_PASSWORD)
     nc = NextcloudApp()
     ip_address = "127.0.0.1" if os.environ["APP_HOST"] == "0.0.0.0" else os.environ["APP_HOST"]  # noqa
-    webhook_url = f"http://{ip_address}:{os.environ['APP_PORT']}/webhooks"
-    while True:
-        while ENABLED_FLAG:
-            try:
-                if not poll_tasks(nc, basic_auth, webhook_url):
-                    sleep(1)
-            except Exception as e:
-                print(f"poll_tasks: Exception occurred! Info: {e}")
-                sleep(10)
-        sleep(30)
-        ENABLED_FLAG = nc.enabled_state
-
-
-def poll_tasks(nc: NextcloudApp, basic_auth: httpx.BasicAuth, webhook_url: str) -> bool:
-    reply_from_nc = nc.providers.task_processing.next_task([f"v_{i}" for i in INSTALLED_FLOWS], ["core:text2image"])
-    if not reply_from_nc:
-        return False
-    task_info = reply_from_nc["task"]
+    webhook_url = f"http://{ip_address}:{os.environ['APP_PORT']}/webhooks"  # noqa
     webhook_headers = json.dumps(
         {
             "AA-VERSION": "3.1.0",
@@ -232,6 +216,23 @@ def poll_tasks(nc: NextcloudApp, basic_auth: httpx.BasicAuth, webhook_url: str) 
             "AUTHORIZATION-APP-API": b64encode(f":{os.environ['APP_SECRET']}".encode()).decode(),
         }
     )
+    while True:
+        while ENABLED_FLAG:
+            try:
+                if not poll_tasks(nc, basic_auth, webhook_url, webhook_headers):
+                    sleep(1)
+            except Exception as e:
+                print(f"poll_tasks: Exception occurred! Info: {e}")
+                sleep(10)
+        sleep(30)
+        ENABLED_FLAG = nc.enabled_state
+
+
+def poll_tasks(nc: NextcloudApp, basic_auth: httpx.BasicAuth, webhook_url: str, webhook_headers: str) -> bool:
+    reply_from_nc = nc.providers.task_processing.next_task([f"v_{i}" for i in INSTALLED_FLOWS], ["core:text2image"])
+    if not reply_from_nc:
+        return False
+    task_info = reply_from_nc["task"]
     with httpx.Client(base_url="http://127.0.0.1:8288/api") as client:
         vix_task = client.put(
             url="/tasks/create",
