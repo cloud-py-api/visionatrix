@@ -86,9 +86,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          context: ${{ env.APP_NAME }}/.
+          context: ./${{ env.APP_NAME }}
           platforms: linux/amd64
-          file: Dockerfile
           tags: ghcr.io/cloud-py-api/visionatrix:${{ env.VERSION }}
           build-args: |
             BUILD_TYPE=cpu
