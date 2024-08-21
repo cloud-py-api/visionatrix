@@ -32,7 +32,7 @@ ENABLED_FLAG = NextcloudApp().enabled_state
 SUPERUSER_PASSWORD_PATH = Path(persistent_storage()).joinpath("superuser.txt")
 SUPERUSER_NAME = "visionatrix_admin"
 SUPERUSER_PASSWORD: str = ""
-# print(str(SUPERUSER_PASSWORD_PATH), flush=True)  # for development only
+print(str(SUPERUSER_PASSWORD_PATH), flush=True)  # for development only
 INSTALLED_FLOWS = []
 
 
@@ -106,7 +106,6 @@ def get_task_progress(
     nc = NextcloudApp()
     if error:
         nc.providers.task_processing.report_result(nc_task_id, None, error)
-        # to-do: here if task is not found on the NC side we should cancel it in the Visionatrix
         return
     if progress == 100.0:
         with httpx.Client(
@@ -135,6 +134,15 @@ def get_task_progress(
             client.delete(url="/tasks/task", params={"task_id": task_id})
     else:
         debug_info = nc.providers.task_processing.set_progress(nc_task_id, progress)
+        if not debug_info:
+            with httpx.Client(
+                base_url="http://127.0.0.1:8288/api",
+                auth=httpx.BasicAuth(SUPERUSER_NAME, SUPERUSER_PASSWORD),
+            ) as client:
+                client.delete(
+                    url=f"/tasks/task",
+                    params={"task_id": task_id},
+                )
     print("[DEBUG]: get_task_progress:")
     print(debug_info)
     print(nc_task_id, " ", task_id, " ", progress, " ", execution_time, " ", error)
