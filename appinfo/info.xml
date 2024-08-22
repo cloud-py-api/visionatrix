@@ -18,6 +18,10 @@ Can be used from within Nextcloud Assistant as a regular "txt2img" image provide
 	<website>https://github.com/cloud-py-api/visionatrix</website>
 	<bugs>https://github.com/cloud-py-api/visionatrix/issues</bugs>
 	<repository type="git">https://github.com/cloud-py-api/visionatrix</repository>
+	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_1_light.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_2_light.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_3_light.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_4_light.png</screenshot>
 	<dependencies>
 		<nextcloud min-version="30" max-version="31"/>
 	</dependencies>
