@@ -43,13 +43,13 @@ build-push-rocm:
 .PHONY: run30
 run30:
 	docker exec master-stable30-1 sudo -u www-data php occ app_api:app:unregister visionatrix --silent --force || true
-	docker exec master-stable30-1 sudo -u www-data php occ app_api:app:register visionatrix --force-scopes \
+	docker exec master-stable30-1 sudo -u www-data php occ app_api:app:register visionatrix \
 		--info-xml https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/appinfo/info.xml
 
 .PHONY: run
 run:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister visionatrix --silent --force || true
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register visionatrix --force-scopes \
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register visionatrix \
 		--info-xml https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/appinfo/info.xml
 
 .PHONY: register
@@ -57,8 +57,8 @@ register:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister visionatrix --silent --force || true
 	docker exec master-nextcloud-1 rm -rf /tmp/vix_l10n && docker cp ex_app/l10n master-nextcloud-1:/tmp/vix_l10n
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register visionatrix manual_install --json-info \
-  "{\"id\":\"visionatrix\",\"name\":\"Visionatrix\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":9100,\"scopes\":[\"AI_PROVIDERS\", \"FILES\", \"USER_INFO\"], \"routes\": [{\"url\":\".*\",\"verb\":\"GET, POST, PUT, DELETE\",\"access_level\":1,\"headers_to_exclude\":[]}], \"translations_folder\":\"\/tmp\/vix_l10n\"}" \
-  --force-scopes --wait-finish
+  "{\"id\":\"visionatrix\",\"name\":\"Visionatrix\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":9100,\"scopes\":[\"ALL\"], \"routes\": [{\"url\":\".*\",\"verb\":\"GET, POST, PUT, DELETE\",\"access_level\":1,\"headers_to_exclude\":[]}], \"translations_folder\":\"\/tmp\/vix_l10n\"}" \
+  --wait-finish
 
 .PHONY: translation_templates
 translation_templates:

@@ -4,10 +4,20 @@
 	<name>Visionatrix</name>
 	<summary>Visionatrix - scalable AI Media processing</summary>
 	<description>
-	<![CDATA[Nextcloud Visionatrix is a standalone Visionatrix service that allows you to process your media files right in your Nextcloud.
-Each user has their own Visionatrix account (authenticated using Nextcloud credentials) and tasks history.
+	<![CDATA[Nextcloud Visionatrix is a standalone [Visionatrix](https://github.com/Visionatrix/Visionatrix) service that allows you to process your media files right within your Nextcloud.
 
-Can be used from within Nextcloud Assistant as a regular "txt2img" image provider.]]>
+*Each user gets their own Visionatrix account, authenticated using Nextcloud credentials, with a personalized task history.*
+
+Experience the full potential of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) integrated directly into Nextcloud Visionatrix, empowering you to explore a wide array of pre-built AI workflows or develop and integrate your own with ease.
+
+- 🌐 **Ready-to-Use Flows**: Access an extensive collection of high-quality ComfyUI flows tailored for various AI tasks.
+- 🛠️ **Custom Flow Development**: Build, modify, and enhance your own workflows, adapting them to your unique requirements.
+- 🚀 **Seamless Integration**: Enjoy a unified experience where ComfyUI's power meets Nextcloud’s efficiency, offering an unparalleled AI workflow ecosystem.
+
+Nextcloud Visionatrix can also be used from within the Nextcloud Assistant as a "txt2img" image provider, making it your go-to solution for all AI-powered media processing needs.
+
+Embrace the next level of AI flow management with the synergy of ComfyUI and Nextcloud today!
+]]>
 	</description>
 	<version>1.0.0</version>
 	<licence>MIT</licence>
@@ -29,7 +39,7 @@ Can be used from within Nextcloud Assistant as a regular "txt2img" image provide
 		<docker-install>
 			<registry>ghcr.io</registry>
 			<image>cloud-py-api/visionatrix</image>
-			<image-tag>1.0.1</image-tag>
+			<image-tag>1.3.0</image-tag>
 		</docker-install>
 		<scopes>
 			<value>AI_PROVIDERS</value>
