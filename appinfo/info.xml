@@ -6,17 +6,22 @@
 	<description>
 	<![CDATA[Nextcloud Visionatrix is a standalone [Visionatrix](https://github.com/Visionatrix/Visionatrix) service that allows you to process your media files right within your Nextcloud.
 
+
 *Each user gets their own Visionatrix account, authenticated using Nextcloud credentials, with a personalized task history.*
 
+
 Experience the full potential of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) integrated directly into Nextcloud Visionatrix, empowering you to explore a wide array of pre-built AI workflows or develop and integrate your own with ease.
+
 
 - 🌐 **Ready-to-Use Flows**: Access an extensive collection of high-quality ComfyUI flows tailored for various AI tasks.
 - 🛠️ **Custom Flow Development**: Build, modify, and enhance your own workflows, adapting them to your unique requirements.
 - 🚀 **Seamless Integration**: Enjoy a unified experience where ComfyUI's power meets Nextcloud’s efficiency, offering an unparalleled AI workflow ecosystem.
 
+
 Nextcloud Visionatrix can also be used from within the Nextcloud Assistant as a "txt2img" image provider, making it your go-to solution for all AI-powered media processing needs.
 
-Embrace the next level of AI flow management with the synergy of ComfyUI and Nextcloud today!
+
+🦾 Embrace the next level of AI flows with the synergy of ComfyUI and Nextcloud today!
 	]]></description>
 	<version>1.0.0</version>
 	<licence>MIT</licence>
