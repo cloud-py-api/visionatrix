@@ -17,8 +17,7 @@ Experience the full potential of [ComfyUI](https://github.com/comfyanonymous/Com
 Nextcloud Visionatrix can also be used from within the Nextcloud Assistant as a "txt2img" image provider, making it your go-to solution for all AI-powered media processing needs.
 
 Embrace the next level of AI flow management with the synergy of ComfyUI and Nextcloud today!
-]]>
-	</description>
+	]]></description>
 	<version>1.0.0</version>
 	<licence>MIT</licence>
 	<author mail="andrey18106x@gmail.com" homepage="https://github.com/andrey18106">Andrey Borysenko</author>
@@ -28,10 +27,10 @@ Embrace the next level of AI flow management with the synergy of ComfyUI and Nex
 	<website>https://github.com/cloud-py-api/visionatrix</website>
 	<bugs>https://github.com/cloud-py-api/visionatrix/issues</bugs>
 	<repository type="git">https://github.com/cloud-py-api/visionatrix</repository>
-	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_1_light.png</screenshot>
-	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_2_light.png</screenshot>
-	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_3_light.png</screenshot>
-	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_4_light.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_1_light.jpg</screenshot>
+	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_2_light.jpg</screenshot>
+	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_3_light.jpg</screenshot>
+	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_4_light.jpg</screenshot>
 	<dependencies>
 		<nextcloud min-version="30" max-version="31"/>
 	</dependencies>
