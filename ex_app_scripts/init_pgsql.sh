@@ -6,6 +6,21 @@ DB_USER=${APP_ID:-visionatrix}
 DB_PASS=${APP_ID:-visionatrix}
 BASE_DIR="${APP_PERSISTENT_STORAGE:-/nc_app_visionatrix_data}"
 
+# Check if EXTERNAL_DATABASE is set
+if [ -n "${EXTERNAL_DATABASE}" ]; then
+    DATABASE_URI="${EXTERNAL_DATABASE}"
+    echo "Using external database. DATABASE_URI is set to: $DATABASE_URI"
+
+    # Check if DATABASE_URI is already in /etc/environment, if not, add it
+    if ! grep -q "^export DATABASE_URI=" /etc/environment; then
+        echo "export DATABASE_URI=\"${EXTERNAL_DATABASE}\"" >> /etc/environment
+    fi
+
+    # Reload environment variables
+    . /etc/environment
+    exit 0
+fi
+
 # PostgreSQL version to use
 PG_VERSION=15
 PG_BIN="/usr/lib/postgresql/${PG_VERSION}/bin"
@@ -35,9 +50,9 @@ if [ ! -d "$DATA_DIR/base" ]; then
     sudo -u postgres ${PG_BIN}/initdb -D "$DATA_DIR"
     PG_CONF="${DATA_DIR}/postgresql.conf"
     if ! grep -q "^listen_addresses\s*=\s*''" "$PG_CONF"; then
-		echo "Updating PostgreSQL configuration to disable TCP/IP connections..."
-		echo "listen_addresses = ''" >> "$PG_CONF"
-	fi
+        echo "Updating PostgreSQL configuration to disable TCP/IP connections..."
+        echo "listen_addresses = ''" >> "$PG_CONF"
+    fi
 fi
 
 echo "Starting PostgreSQL..."
