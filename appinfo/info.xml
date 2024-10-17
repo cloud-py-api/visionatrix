@@ -21,6 +21,8 @@ Experience the full potential of [ComfyUI](https://github.com/comfyanonymous/Com
 Nextcloud Visionatrix can also be used from within the Nextcloud Assistant as a "txt2img" image provider, making it your go-to solution for all AI-powered media processing needs.
 
 Embrace the next level of AI flow management with the synergy of ComfyUI and Nextcloud today!
+
+For more information, see the [repository](https://github.com/cloud-py-api/visionatrix) readme file.
 	]]></description>
 	<version>1.0.1</version>
 	<licence>MIT</licence>
@@ -52,5 +54,18 @@ Embrace the next level of AI flow management with the synergy of ComfyUI and Nex
 				<headers_to_exclude>[]</headers_to_exclude>
 			</route>
 		</routes>
+		<environment-variables>
+            <variable>
+                <name>EXTERNAL_DATABASE</name>
+                <display-name>External database</display-name>
+                <description>External database URI in SqlAlchemy format: postgresql+psycopg://vix_user:vix_password@localhost:5432/vix_db</description>
+            </variable>
+            <variable>
+                <name>DISABLE_WORKER</name>
+                <display-name>Disable tasks execution (Server mode only)</display-name>
+                <description>If you have external workers, you can disable the bundled one to make Visionatrix work only in Server mode for task management.</description>
+                <default>0</default>
+            </variable>
+        </environment-variables>
 	</external-app>
 </info>

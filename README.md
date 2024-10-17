@@ -1,6 +1,6 @@
-# Nextcloud Visionatrix integration
+# Nextcloud Visionatrix Integration
 
-Introduce the scalable AI Media processing for Nextcloud.
+Introducing scalable AI media processing for Nextcloud.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./screenshots/visionatrix_1_dark.jpg">
@@ -12,17 +12,18 @@ Introduce the scalable AI Media processing for Nextcloud.
   <img alt="Visionatrix UI" src="./screenshots/visionatrix_2_light.jpg">
 </picture>
 
-ExApp Visionatrix is a standalone [Visionatrix](https://github.com/Visionatrix/Visionatrix) that allows you to process your media files right in your Nextcloud.
+ExApp Visionatrix is a standalone [Visionatrix](https://github.com/Visionatrix/Visionatrix) service, allowing you to process media files directly within your Nextcloud.
 
-Each user authenticated using Nextcloud credentials and has their own tasks history.
+Each user is authenticated via Nextcloud credentials and has a personal task history.
 
-## TextToImage provider
+## TextToImage Provider
 
 You can use Visionatrix as the TextToImage provider via [Nextcloud Assistant](https://github.com/nextcloud/assistant).
-As soon as you have Visionatrix flow installed, and it's supported, it will be registered as a TextToImage provider.
+
+Once the Visionatrix flow is installed and supported, it will be registered as a TextToImage provider.
 
 > [!NOTE]
-> Not all Visionatrix flows are available in Nextcloud Assistant, see list [here](https://github.com/cloud-py-api/visionatrix/blob/main/ex_app/lib/supported_flows.py)
+> Not all Visionatrix flows are available in Nextcloud Assistant. See the list [here](https://github.com/cloud-py-api/visionatrix/blob/main/ex_app/lib/supported_flows.py)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./screenshots/visionatrix_3_dark.jpg">
@@ -36,32 +37,32 @@ As soon as you have Visionatrix flow installed, and it's supported, it will be r
 
 ## Installation
 
-1. Install and configure [AppAPI](https://github.com/cloud-py-api/app_api)
-2. After AppAPI is installed and Deploy daemon is configured, install Nextcloud Visionatrix ExApp from the Nextcloud AppStore.
+> **Note:**  
+> The `AppAPI` application needs to be enabled to install and use this application.
+
+### Installation
+
+1. Configure [AppAPI](https://github.com/nextcloud/app_api).
+2. Once AppAPI is set up and the deployment daemon is configured, install the Nextcloud Visionatrix ExApp from the Nextcloud AppStore.
 3. Enjoy Nextcloud Visionatrix from the Top Menu.
 
-> [!NOTE]
-> The Deploy daemon with GPU 12GB+ VRAM is recommended to run all available Visionatrix flows.
->
-> If environment variable in the AppAPI deploy daemon contains `DISABLE_WORKER=1` than only [Server](https://visionatrix.github.io/VixFlowsDocs/AdminManual/WorkingModes/working_modes/#server) 
-> part of Visionatrix will run, and it does not require GPU at all, 
-> but requires Visionatrix workers to run where it suits you that will process tasks connecting to the server version.
+We offer two types of installation:
 
-## Workers Configuration
+1. **Standard Installation**: This includes both the Visionatrix server for task management and a built-in worker for task processing. 
 
-By default, Visionatrix uses available hardware on daemon as the first worker.
+	> [!NOTE]
+	> For this installation, you'll need either a powerful CPU with at least 32 GB of RAM or a GPU with at least 10 GB of VRAM. 
+	> _(Support for 8 GB GPUs is planned)._
 
-It **supports scalability** by attaching additional workers (remote).
-
-You can even setup your home computer with GPU as a worker for your Nextcloud.
+2. **Advanced Installation**: Starting from Nextcloud version `30.0.2`, you can install only the server component by setting `DISABLE_WORKER=1` in the environment variables during application installation. In this mode, the server will manage tasks, while external workers (installed elsewhere) will process them.
 
 > [!NOTE]
-> Worker Auth have to use Nextcloud credentials. If you 2FA is enabled, you have to use App Password.
+> Worker authentication uses Nextcloud credentials. If 2FA is enabled, you will need to use an App Password.
 
-For more information on that, please refer to the [Visionatrix documentation](https://visionatrix.github.io/VixFlowsDocs/).
+For more information, please refer to the original [Visionatrix documentation](https://visionatrix.github.io/VixFlowsDocs/).
 
 ## Questions
 
-Do not hesitate to ask any questions or report issues.
+Feel free to ask questions or report issues.
 
 #### We are looking for maintainers for this ExApp (we will provide help)
