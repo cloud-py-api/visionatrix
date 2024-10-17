@@ -31,13 +31,13 @@ RUN cd /Visionatrix && \
     ARCH=$(uname -m) && \
     if [ "$ARCH" = "aarch64" ]; then \
         echo "Installing PyTorch for ARM64"; \
-        venv/bin/python -m pip install torch torchvision torchaudio; \
+        venv/bin/python -m pip install torch==2.4.1 torchvision torchaudio; \
     elif [ "$BUILD_TYPE" = "rocm" ]; then \
-        venv/bin/python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1; \
+        venv/bin/python -m pip install torch==2.4.1 torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1; \
     elif [ "$BUILD_TYPE" = "cpu" ]; then \
-        venv/bin/python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
+        venv/bin/python -m pip install torch==2.4.1 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
     else \
-        venv/bin/python -m pip install torch torchvision torchaudio; \
+        venv/bin/python -m pip install torch==2.4.1 torchvision torchaudio; \
     fi && \
 	rm -rf ~/.cache/pip
 
