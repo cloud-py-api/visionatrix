@@ -1,64 +1,78 @@
 .DEFAULT_GOAL := help
 
+APP_ID := visionatrix
+APP_NAME := Visionatrix
+APP_VERSION := $$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)
+JSON_INFO := "{\"id\":\"$(APP_ID)\",\"name\":\"$(APP_NAME)\",\"daemon_config_name\":\"manual_install\",\"version\":\"$(APP_VERSION)\",\"secret\":\"12345\",\"port\":9100, \"routes\": [{\"url\":\".*\",\"verb\":\"GET, POST, PUT, DELETE\",\"access_level\":1,\"headers_to_exclude\":[]}], \"translations_folder\":\"\/tmp\/vix_l10n\"}"
+
+
 .PHONY: help
 help:
-	@echo "Welcome to Nextcloud Visionatrix. Please use \`make <target>\` where <target> is one of"
+	@echo "  Welcome to $(APP_NAME) $(APP_VERSION)!"
 	@echo " "
-	@echo "  Next commands are only for dev environment with nextcloud-docker-dev!"
-	@echo "  They should run from the host you are developing on(with activated venv) and not in the container with Nextcloud!"
-	@echo "  "
-	@echo "  build-push        build image and upload to ghcr.io"
-	@echo "  "
-	@echo "  run               install Visionatrix for Nextcloud Last"
-	@echo "  "
-	@echo "  For development of this example use PyCharm run configurations. Development is always set for last Nextcloud."
-	@echo "  First run original 'Visionatrix', then run this Visionatrix and then 'make registerXX', after that you can use/debug/develop it and easy test."
-	@echo "  Do not forget to change paths in 'proxy_requests' function to point to correct files for the frontend"
-	@echo "  "
-	@echo "  register          perform registration of running Visionatrix-es into the 'manual_install' deploy daemon."
-	@echo "  "
+	@echo "  Please use \`make <target>\` where <target> is one of"
+	@echo " "
+	@echo "  build-push        build CPU images and upload to ghcr.io"
+	@echo "  build-push-cuda   build CUDA image and upload to ghcr.io"
+	@echo "  build-push-rocm   build ROCM image and upload to ghcr.io"
+	@echo " "
+	@echo "  > Next commands are only for the dev environment with nextcloud-docker-dev!"
+	@echo "  > They should run from the host you are developing on(with activated venv) and not in the container with Nextcloud!"
+	@echo " "
+	@echo "  run30             install $(APP_NAME) for Nextcloud 30"
+	@echo "  run               install $(APP_NAME) for Nextcloud Latest"
+	@echo " "
+	@echo "  > Commands for manual registering of ExApp($(APP_NAME) should be running!):"
+	@echo " "
+	@echo "  register30        perform registration of running $(APP_NAME) into the 'manual_install' deploy daemon."
+	@echo "  register          perform registration of running $(APP_NAME) into the 'manual_install' deploy daemon."
+	@echo " "
 	@echo "  L10N (for manual translation):"
 	@echo "  translation_templates      extract translation strings from sources"
 	@echo "  convert_translations_nc    convert translations to Nextcloud format files (json, js)"
-	@echo "  convert_to_locale    		copy translations to the common locale/<lang>/LC_MESSAGES/<appid>.(po|mo)"
+	@echo "  convert_to_locale          copy translations to the common locale/<lang>/LC_MESSAGES/<appid>.(po|mo)"
 
 .PHONY: build-push-cpu
 build-push-cpu:
 	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml) --build-arg BUILD_TYPE=cpu .
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(APP_VERSION) --build-arg BUILD_TYPE=cpu .
 
 .PHONY: build-push-cuda
 build-push-cuda:
 	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)-cuda --build-arg BUILD_TYPE=cuda .
+	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(APP_VERSION)-cuda --build-arg BUILD_TYPE=cuda .
 
 .PHONY: build-push-rocm
 build-push-rocm:
 	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/visionatrix:$$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)-rocm --build-arg BUILD_TYPE=rocm .
+	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(APP_VERSION)-rocm --build-arg BUILD_TYPE=rocm .
 
 .PHONY: run30
 run30:
-	docker exec master-stable30-1 sudo -u www-data php occ app_api:app:unregister visionatrix --silent --force || true
-	docker exec master-stable30-1 sudo -u www-data php occ app_api:app:register visionatrix \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/appinfo/info.xml
+	docker exec master-stable30-1 sudo -u www-data php occ app_api:app:unregister $(APP_ID) --silent --force || true
+	docker exec master-stable30-1 sudo -u www-data php occ app_api:app:register $(APP_ID) \
+		--info-xml https://raw.githubusercontent.com/cloud-py-api/$(APP_ID)/main/appinfo/info.xml
 
 .PHONY: run
 run:
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister visionatrix --silent --force || true
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register visionatrix \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/appinfo/info.xml
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister $(APP_ID) --silent --force || true
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register $(APP_ID) \
+		--info-xml https://raw.githubusercontent.com/cloud-py-api/$(APP_ID)/main/appinfo/info.xml
+
+.PHONY: register30
+register30:
+	docker exec master-stable30-1 sudo -u www-data php occ app_api:app:unregister $(APP_ID) --silent --force || true
+	docker exec master-stable30-1 rm -rf /tmp/vix_l10n && docker cp ex_app/l10n master-stable30-1:/tmp/vix_l10n
+	docker exec master-stable30-1 sudo -u www-data php occ app_api:app:register $(APP_ID) manual_install --json-info $(JSON_INFO) --wait-finish
 
 .PHONY: register
 register:
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister visionatrix --silent --force || true
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister $(APP_ID) --silent --force || true
 	docker exec master-nextcloud-1 rm -rf /tmp/vix_l10n && docker cp ex_app/l10n master-nextcloud-1:/tmp/vix_l10n
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register visionatrix manual_install --json-info \
-  "{\"id\":\"visionatrix\",\"name\":\"Visionatrix\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":9100,\"scopes\":[\"ALL\"], \"routes\": [{\"url\":\".*\",\"verb\":\"GET, POST, PUT, DELETE\",\"access_level\":1,\"headers_to_exclude\":[]}], \"translations_folder\":\"\/tmp\/vix_l10n\"}" \
-  --wait-finish
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register $(APP_ID) manual_install --json-info $(JSON_INFO) --wait-finish
 
 .PHONY: translation_templates
 translation_templates:
