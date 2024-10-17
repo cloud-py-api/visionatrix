@@ -42,6 +42,10 @@
 /requirements.txt
 /Dockerfile
 /results
+/ex_app/js
+/ex_app/lib
 /ex_app/src
+/ex_app_scripts
+/translationtool.phar
 /client
 tests
