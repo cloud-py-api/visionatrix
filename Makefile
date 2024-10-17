@@ -2,7 +2,8 @@
 
 APP_ID := visionatrix
 APP_NAME := Visionatrix
-APP_VERSION := $$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)
+APP_VERSION := $$(xmlstarlet sel -t -v "//version" appinfo/info.xml)
+VISIONATRIX_VERSION := $$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)
 JSON_INFO := "{\"id\":\"$(APP_ID)\",\"name\":\"$(APP_NAME)\",\"daemon_config_name\":\"manual_install\",\"version\":\"$(APP_VERSION)\",\"secret\":\"12345\",\"port\":9100, \"routes\": [{\"url\":\".*\",\"verb\":\"GET, POST, PUT, DELETE\",\"access_level\":1,\"headers_to_exclude\":[]}], \"translations_folder\":\"\/tmp\/vix_l10n\"}"
 
 
@@ -36,19 +37,19 @@ help:
 build-push-cpu:
 	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(APP_VERSION) --build-arg BUILD_TYPE=cpu .
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION) --build-arg BUILD_TYPE=cpu .
 
 .PHONY: build-push-cuda
 build-push-cuda:
 	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(APP_VERSION)-cuda --build-arg BUILD_TYPE=cuda .
+	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION)-cuda --build-arg BUILD_TYPE=cuda .
 
 .PHONY: build-push-rocm
 build-push-rocm:
 	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(APP_VERSION)-rocm --build-arg BUILD_TYPE=rocm .
+	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION)-rocm --build-arg BUILD_TYPE=rocm .
 
 .PHONY: run30
 run30:
