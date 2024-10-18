@@ -47,5 +47,6 @@
 /ex_app/src
 /ex_app_scripts
 /translationtool.phar
+/healthcheck.sh
 /client
 tests

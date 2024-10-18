@@ -18,7 +18,7 @@ help:
 	@echo "  build-push-rocm   builds ROCM image and uploads it to ghcr.io"
 	@echo " "
 	@echo "  > Next commands are only for the dev environment with nextcloud-docker-dev!"
-	@echo "  > They should run from the host you are developing on(with activated venv) and not in the container with Nextcloud!"
+	@echo "  > They must be run from the host you are developing on, not in a Nextcloud container!"
 	@echo " "
 	@echo "  run30             installs $(APP_NAME) for Nextcloud 30"
 	@echo "  run               installs $(APP_NAME) for Nextcloud Latest"
