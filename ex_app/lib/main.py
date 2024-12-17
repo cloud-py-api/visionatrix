@@ -1,11 +1,13 @@
 import asyncio
 import contextlib
 import json
+import logging
 import os
 import random
 import string
 import subprocess
 import typing
+import xml.etree.ElementTree as ET  # noqa
 import zipfile
 from base64 import b64encode
 from contextvars import ContextVar
@@ -15,14 +17,43 @@ from pathlib import Path
 from time import sleep
 
 import httpx
-from fastapi import BackgroundTasks, Body, Depends, FastAPI, Request, responses, status
+from fastapi import BackgroundTasks, Body, Depends, FastAPI, Request, responses
 from nc_py_api import NextcloudApp
-from nc_py_api.ex_app import AppAPIAuthMiddleware, nc_app, persistent_storage, run_app
+from nc_py_api.ex_app import (
+    AppAPIAuthMiddleware,
+    nc_app,
+    persistent_storage,
+    run_app,
+    setup_nextcloud_logging,
+)
 from nc_py_api.ex_app.integration_fastapi import fetch_models_task
 from nc_py_api.ex_app.providers.task_processing import TaskProcessingProvider
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import FileResponse, Response
 from supported_flows import FLOWS_IDS
+
+# ---------Start of configuration values for manual deploy---------
+# Uncommenting the following lines may be useful when installing manually.
+
+# xml_path = Path(__file__).resolve().parent / "../../appinfo/info.xml"
+# os.environ["APP_VERSION"] = ET.parse(xml_path).getroot().find(".//image-tag").text
+#
+# os.environ["NEXTCLOUD_URL"] = "http://nextcloud.local/index.php"
+# os.environ["APP_HOST"] = "0.0.0.0"
+# os.environ["APP_PORT"] = "24000"
+# os.environ["APP_ID"] = "visionatrix"
+# os.environ["APP_SECRET"] = "12345"  # noqa
+# ---------Enf of configuration values for manual deploy---------
+
+SERVICE_URL = os.environ.get("VISIONATRIX_URL", "http://127.0.0.1:8288")
+
+logging.basicConfig(
+    level=logging.WARNING,
+    format="[%(funcName)s]: %(message)s",
+    datefmt="%H:%M:%S",
+)
+LOGGER = logging.getLogger("visionatrix")
+LOGGER.setLevel(logging.DEBUG)
 
 LOCALE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "locale")
 current_translator = ContextVar("current_translator")
@@ -35,6 +66,12 @@ SUPERUSER_PASSWORD: str = ""
 print(str(SUPERUSER_PASSWORD_PATH), flush=True)  # for development only
 INSTALLED_FLOWS = []
 
+PROJECT_ROOT_FOLDER = Path(__file__).parent.parent.parent
+STATIC_FRONTEND_FOLDER = PROJECT_ROOT_FOLDER.joinpath("../Visionatrix/visionatrix/client")
+STATIC_FRONTEND_PRESENT = STATIC_FRONTEND_FOLDER.is_dir()
+print("[DEBUG]: PROJECT_ROOT_FOLDER=", PROJECT_ROOT_FOLDER, flush=True)
+print("[DEBUG]: STATIC_FRONTEND_PRESENT=", STATIC_FRONTEND_PRESENT, flush=True)
+
 
 def _(text):
     return current_translator.get().gettext(text)
@@ -43,7 +80,7 @@ def _(text):
 class LocalizationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         request_lang = request.headers.get("Accept-Language", "en")
-        print(f"DEBUG: lang={request_lang}")
+        print(f"DEBUG: lang={request_lang}", flush=True)
         translator = translation(os.getenv("APP_ID"), LOCALE_DIR, languages=[request_lang], fallback=True)
         current_translator.set(translator)
         return await call_next(request)
@@ -53,7 +90,8 @@ class LocalizationMiddleware(BaseHTTPMiddleware):
 async def lifespan(_app: FastAPI):
     global SUPERUSER_PASSWORD
 
-    print(_("Visionatrix"))
+    print(_("Visionatrix"), flush=True)
+    setup_nextcloud_logging("visionatrix", logging_level=logging.WARNING)
     SUPERUSER_PASSWORD = Path(SUPERUSER_PASSWORD_PATH).read_text()
     _t1 = asyncio.create_task(start_nextcloud_provider_registration())  # noqa
     _t2 = asyncio.create_task(start_nextcloud_tasks_polling())  # noqa
@@ -68,12 +106,13 @@ APP.add_middleware(AppAPIAuthMiddleware)  # noqa
 def enabled_handler(enabled: bool, nc: NextcloudApp) -> str:
     global ENABLED_FLAG
 
-    print(f"enabled={enabled}")
     ENABLED_FLAG = enabled
     if enabled:
+        LOGGER.info("Hello from %s", nc.app_cfg.app_name)
         nc.ui.resources.set_script("top_menu", "visionatrix", "ex_app/js/visionatrix-main")
         nc.ui.top_menu.register("visionatrix", "Visionatrix", "ex_app/img/app.svg")
     else:
+        LOGGER.info("Bye bye from %s", nc.app_cfg.app_name)
         nc.ui.resources.delete_script("top_menu", "visionatrix", "ex_app/js/visionatrix-main")
         nc.ui.top_menu.unregister("visionatrix")
     return ""
@@ -95,6 +134,32 @@ def enabled_callback(enabled: bool, nc: typing.Annotated[NextcloudApp, Depends(n
     return responses.JSONResponse(content={"error": enabled_handler(enabled, nc)})
 
 
+async def proxy_request_to_service(request: Request, path: str, path_prefix: str = ""):
+    async with httpx.AsyncClient() as client:
+        url = f"{SERVICE_URL}{path_prefix}/{path}"
+        headers = {key: value for key, value in request.headers.items() if key.lower() not in ("host", "cookie")}
+        if request.method == "GET":
+            response = await client.get(
+                url,
+                params=request.query_params,
+                cookies=request.cookies,
+                headers=headers,
+            )
+        else:
+            response = await client.request(
+                method=request.method,
+                url=url,
+                params=request.query_params,
+                headers=headers,
+                cookies=request.cookies,
+                content=await request.body(),
+            )
+        LOGGER.debug("%s %s/%s -> %s", request.method, path_prefix, path, response.status_code)
+        response_header = dict(response.headers)
+        response_header.pop("transfer-encoding", None)
+        return Response(content=response.content, status_code=response.status_code, headers=response_header)
+
+
 @APP.post("/webhooks/{nc_task_id}/task-progress")
 def get_task_progress(
     nc_task_id: int,
@@ -109,7 +174,7 @@ def get_task_progress(
         return
     if progress == 100.0:
         with httpx.Client(
-            base_url="http://127.0.0.1:8288/api",
+            base_url=f"{SERVICE_URL}/vapi",
             auth=httpx.BasicAuth(SUPERUSER_NAME, SUPERUSER_PASSWORD),
         ) as client:
             vix_task = client.get(
@@ -136,76 +201,55 @@ def get_task_progress(
         debug_info = nc.providers.task_processing.set_progress(nc_task_id, progress)
         if not debug_info:
             with httpx.Client(
-                base_url="http://127.0.0.1:8288/api",
+                base_url=f"{SERVICE_URL}/vapi",
                 auth=httpx.BasicAuth(SUPERUSER_NAME, SUPERUSER_PASSWORD),
             ) as client:
                 client.delete(
-                    url=f"/tasks/task",
+                    url="/tasks/task",
                     params={"task_id": task_id},
                 )
-    print("[DEBUG]: get_task_progress:")
-    print(debug_info)
-    print(nc_task_id, " ", task_id, " ", progress, " ", execution_time, " ", error)
+    LOGGER.debug(
+        "Updating task progress in NC with:\n"
+        "NcTaskID=%s, task_id=%s, progress=%s, execution_time=%s, error='%s'\n"
+        "Reply from nc: %s",
+        nc_task_id,
+        task_id,
+        progress,
+        execution_time,
+        error,
+        debug_info,
+    )
 
 
 @APP.api_route(
-    "/api/{path:path}",
+    "/vapi/{path:path}",
     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"],
 )
 async def proxy_backend_requests(request: Request, path: str):
-    # print(f"proxy_BACKEND_requests: {path} - {request.method}\nCookies: {request.cookies}", flush=True)
-    async with httpx.AsyncClient() as client:
-        url = f"http://127.0.0.1:8288/api/{path}"
-        headers = {key: value for key, value in request.headers.items() if key.lower() not in ("host", "cookie")}
-        # print(f"proxy_BACKEND_requests: method={request.method}, path={path}, status={response.status_code}")
-        if request.method == "GET":
-            response = await client.get(
-                url,
-                params=request.query_params,
-                cookies=request.cookies,
-                headers=headers,
-            )
-        else:
-            response = await client.request(
-                method=request.method,
-                url=url,
-                params=request.query_params,
-                headers=headers,
-                cookies=request.cookies,
-                content=await request.body(),
-            )
-        # print(
-        #     f"proxy_BACKEND_requests: method={request.method}, path={path}, status={response.status_code}", flush=True
-        # )
-        response_header = dict(response.headers)
-        response_header.pop("transfer-encoding", None)
-        return Response(
-            content=response.content,
-            status_code=response.status_code,
-            headers=response_header,
-        )
+    LOGGER.debug("%s %s\nCookies: %s", request.method, path, request.cookies)
+    return await proxy_request_to_service(request, path, "/vapi")
 
 
-@APP.api_route(
-    "/{path:path}",
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"],
-)
-async def proxy_requests(_request: Request, path: str):
-    # print(
-    #     f"proxy_requests: {path} - {_request.method}\nCookies: {_request.cookies}",
-    #     flush=True,
-    # )
+@APP.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"])
+async def proxy_frontend_requests(request: Request, path: str):
+    LOGGER.debug("%s %s\nCookies: %s", request.method, path, request.cookies)
+    file_server_path = ""
     if path.startswith("ex_app"):
-        file_server_path = Path("../../" + path)
-    elif not path:
-        file_server_path = Path("../../Visionatrix/visionatrix/client/index.html")
+        file_server_path = PROJECT_ROOT_FOLDER.joinpath(path)
+    elif STATIC_FRONTEND_PRESENT:
+        if not path:
+            file_server_path = STATIC_FRONTEND_FOLDER.joinpath("index.html")
+        elif STATIC_FRONTEND_FOLDER.joinpath(path).is_file():
+            file_server_path = STATIC_FRONTEND_FOLDER.joinpath(path)
+
+    if file_server_path:
+        LOGGER.debug("proxy_FRONTEND_requests: <OK> Returning: %s", file_server_path)
+        response = FileResponse(str(file_server_path))
     else:
-        file_server_path = Path("../../Visionatrix/visionatrix/client/" + path)
-    if not file_server_path.exists():
-        return Response(status_code=status.HTTP_404_NOT_FOUND)
-    response = FileResponse(str(file_server_path))
+        if STATIC_FRONTEND_PRESENT:
+            LOGGER.debug("proxy_FRONTEND_requests: <LOCAL FILE MISSING> Routing(%s) to the service", path)
+        response = await proxy_request_to_service(request, path)
     response.headers["content-security-policy"] = "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"
-    # print("proxy_FRONTEND_requests: <OK> Returning: ", str(file_server_path), flush=True)
     return response
 
 
@@ -218,7 +262,7 @@ def background_tasks_polling():
     webhook_url = f"http://{ip_address}:{os.environ['APP_PORT']}/webhooks"  # noqa
     webhook_headers = json.dumps(
         {
-            "AA-VERSION": "3.1.0",
+            "AA-VERSION": "4.0.0",
             "EX-APP-VERSION": os.environ["APP_VERSION"],
             "EX-APP-ID": os.environ["APP_ID"],
             "AUTHORIZATION-APP-API": b64encode(f":{os.environ['APP_SECRET']}".encode()).decode(),
@@ -229,8 +273,8 @@ def background_tasks_polling():
             try:
                 if not poll_tasks(nc, basic_auth, webhook_url, webhook_headers):
                     sleep(1)
-            except Exception as e:
-                print(f"poll_tasks: Exception occurred! Info: {e}")
+            except Exception:  # noqa
+                LOGGER.exception("Exception occurred", stack_info=True)
                 sleep(10)
         sleep(30)
         ENABLED_FLAG = nc.enabled_state
@@ -241,23 +285,18 @@ def poll_tasks(nc: NextcloudApp, basic_auth: httpx.BasicAuth, webhook_url: str, 
     if not reply_from_nc:
         return False
     task_info = reply_from_nc["task"]
-    with httpx.Client(base_url="http://127.0.0.1:8288/api") as client:
+    with httpx.Client(base_url=f"{SERVICE_URL}/vapi") as client:
         vix_task = client.put(
-            url="/tasks/create",
+            url=f"/tasks/create/{reply_from_nc['provider']['name'].removeprefix('v_')}",
             auth=basic_auth,
             data={
-                "name": reply_from_nc["provider"]["name"].removeprefix("v_"),
-                "input_params": json.dumps(
-                    {
-                        "prompt": task_info["input"]["input"],
-                        "batch_size": min(task_info["input"]["numberOfImages"], 4),
-                    }
-                ),
+                "prompt": task_info["input"]["input"],
+                "batch_size": min(task_info["input"]["numberOfImages"], 4),
                 "webhook_url": webhook_url + f"/{task_info['id']}",
                 "webhook_headers": webhook_headers,
             },
         )
-        print("task passed to visionatrix, return code: ", vix_task.status_code, flush=True)
+        LOGGER.debug("task passed to visionatrix, return code: %s", vix_task.status_code)
     return True
 
 
@@ -276,8 +315,8 @@ def background_provider_registration():
             try:
                 sync_providers(nc, basic_auth)
                 sleep(30)
-            except Exception as e:
-                print(f"sync_providers: Exception occurred! Info: {e}")
+            except Exception:  # noqa
+                LOGGER.exception("Exception occurred", stack_info=True)
                 sleep(60)
         sleep(60)
         ENABLED_FLAG = nc.enabled_state
@@ -286,7 +325,7 @@ def background_provider_registration():
 def sync_providers(nc: NextcloudApp, basic_auth: httpx.BasicAuth) -> None:
     global INSTALLED_FLOWS
 
-    with httpx.Client(base_url="http://127.0.0.1:8288/api") as client:
+    with httpx.Client(base_url=f"{SERVICE_URL}/vapi") as client:
         r = client.get(
             url="/flows/installed",
             auth=basic_auth,
@@ -318,17 +357,17 @@ def generate_random_string(length=10):
 def venv_run(command: str) -> None:
     command = f". /Visionatrix/venv/bin/activate && {command}"
     try:
-        print(f"executing(pwf={os.getcwd()}): {command}")
+        print(f"executing(pwf={os.getcwd()}): {command}", flush=True)
         subprocess.check_call(command, shell=True)
     except subprocess.CalledProcessError as e:
-        print("An error occurred while executing command in venv:", str(e))
+        print("An error occurred while executing command in venv:", str(e), flush=True)
         raise
 
 
 def initialize_visionatrix() -> None:
     while True:  # Let's wait until Visionatrix opens the port.
         with contextlib.suppress(httpx.ReadError, httpx.ConnectError, httpx.RemoteProtocolError):
-            r = httpx.get("http://127.0.0.1:8288")
+            r = httpx.get(SERVICE_URL)
             if r.status_code in (200, 204, 401, 403):
                 break
             sleep(5)

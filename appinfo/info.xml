@@ -4,27 +4,38 @@
 	<name>Visionatrix</name>
 	<summary>Visionatrix - scalable AI Media processing</summary>
 	<description>
-	<![CDATA[Nextcloud Visionatrix is a standalone [Visionatrix](https://github.com/Visionatrix/Visionatrix) service that allows you to process your media files right within your Nextcloud.
+	<![CDATA[The best open-source solution for media processing, [ComfyUI](https://github.com/comfyanonymous/ComfyUI), extended with [Visionatrix](https://github.com/Visionatrix/Visionatrix), now available in your personal Nextcloud.
 
-*Each user gets their own Visionatrix account, authenticated using Nextcloud credentials, with a personalized task history.*
-
----
-
-Experience the full potential of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) integrated directly into Nextcloud Visionatrix, empowering you to explore a wide array of pre-built AI workflows or develop and integrate your own with ease.
-
-- 🌐 **Ready-to-Use Flows**: Access an extensive collection of high-quality ComfyUI flows tailored for various AI tasks.
-- 🛠️ **Custom Flow Development**: Build, modify, and enhance your own workflows, adapting them to your unique requirements.
-- 🚀 **Seamless Integration**: Enjoy a unified experience where ComfyUI's power meets Nextcloud’s efficiency, offering an unparalleled AI workflow ecosystem.
+✨ Process your media files directly in Nextcloud using powerful, customizable AI workflows.
 
 ---
 
-Nextcloud Visionatrix can also be used from within the Nextcloud Assistant as a "txt2img" image provider, making it your go-to solution for all AI-powered media processing needs.
+- 🌟 **Ready-to-use flows**: A library of workflows for various AI tasks.
+- 🛠️ **Custom workflows**: Design and adapt workflows to fit your needs.
+- 🤝 **Nextcloud integration**: Use Visionatrix with Nextcloud Assistant as an AI provider for seamless media processing.
+- 🚀 **Parallel task processing**: Scale up your workflows with support for parallel execution.
+- 🌍 **Multilingual prompts**: Create AI content in any language supported by your chosen language model (e.g., QWEN or Gemini).
+- 🤖 **LLM integration**: Use Ollama (LLM + Vision) and Google Gemini for enhanced functionality.
+- 🖥️ **Hardware support**: Works on both CPU and GPU, with flexibility for various configurations.
 
-Embrace the next level of AI flow management with the synergy of ComfyUI and Nextcloud today!
+---
 
-For more information, see the [repository](https://github.com/cloud-py-api/visionatrix) readme file.
+⚠️ **This version is in beta** as we continue developing key features to deliver a complete and polished product:
+
+- 💬 Chat interface with an AI media assistant.
+- ✏️ Support for editing workflows directly within the Nextcloud interface using the ComfyUI interface.
+- 🔄 On-the-fly model support for [CivitAI](https://civitai.com).
+- ⚙️ Enhanced configuration for ultra low-VRAM GPUs (4 GB) and other performance improvements.
+
+---
+
+💡 **We value your feedback and contributions!**
+
+Share your custom workflows, big or small. For guidance on creating AI workflows, join our [discussions](https://github.com/Visionatrix/Visionatrix/discussions). Contributions to the [documentation](https://visionatrix.github.io/VixFlowsDocs/) are always welcome.
+
+📚 For more details, visit the [repository](https://github.com/cloud-py-api/visionatrix) readme.
 	]]></description>
-	<version>1.0.1</version>
+	<version>1.1.0</version>
 	<licence>MIT</licence>
 	<author mail="andrey18106x@gmail.com" homepage="https://github.com/andrey18106">Andrey Borysenko</author>
 	<author mail="bigcat88@icloud.com" homepage="https://github.com/bigcat88">Alexander Piskun</author>
@@ -44,7 +55,7 @@ For more information, see the [repository](https://github.com/cloud-py-api/visio
 		<docker-install>
 			<registry>ghcr.io</registry>
 			<image>cloud-py-api/visionatrix</image>
-			<image-tag>1.4.1</image-tag>
+			<image-tag>1.9.0</image-tag>
 		</docker-install>
 		<routes>
 			<route>
