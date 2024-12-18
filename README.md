@@ -16,6 +16,9 @@ This is a standalone [Visionatrix](https://github.com/Visionatrix/Visionatrix) s
 
 Each user is authenticated via Nextcloud credentials and has a personal task history.
 
+> [!NOTE]
+> We recommend starting with the "light-weight" flows, such as SDXL Lighting, Remove background (BiRefNet), and Remove background (Bria), to test your hardware.
+
 ## TextToImage Provider
 
 You can use Visionatrix as the TextToImage provider via [Nextcloud Assistant](https://github.com/nextcloud/assistant).
