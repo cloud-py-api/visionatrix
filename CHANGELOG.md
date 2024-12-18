@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ## [1.1.0 - 2024-12-18]
 
 The [Visionatrix](https://github.com/Visionatrix/Visionatrix) service has been updated from version `1.4.1` to `1.9.0`.
+
+**Please remove docker volume named `nc_app_visionatrix_data` or uninstall previous version of Visionatrix with `Delete data on remove` checkbox ticked.**
+
 The main changes are summarized below:
 
 ### Added
