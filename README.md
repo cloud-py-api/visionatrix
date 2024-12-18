@@ -16,6 +16,9 @@ This is a standalone [Visionatrix](https://github.com/Visionatrix/Visionatrix) s
 
 Each user is authenticated via Nextcloud credentials and has a personal task history.
 
+> [!NOTE]
+> We recommend starting with the "light-weight" flows, such as SDXL Lighting, Remove background (BiRefNet), and Remove background (Bria), to test your hardware.
+
 ## TextToImage Provider
 
 You can use Visionatrix as the TextToImage provider via [Nextcloud Assistant](https://github.com/nextcloud/assistant).
@@ -48,12 +51,12 @@ Once the Visionatrix flow is installed and supported, it will be registered as a
 
 We offer two types of installation:
 
-1. **Standard Installation**: This includes both the Visionatrix server for task management and a built-in worker for task processing. 
+1. **Standard Installation**: Includes both the Visionatrix server for task management and a built-in worker for task processing.
 
-	> For this installation, you'll need either a powerful CPU with at least 32 GB of RAM or a GPU with at least 10 GB of VRAM. 
-	> _(Support for 8 GB GPUs is planned)._
+	> For this installation, you'll need either a powerful CPU with at least 32 GB of RAM or a GPU with at least 8 GB of VRAM.
+	> _(Some flows, like background removal, are fast even on CPU and don’t require high-end hardware.)_
 
-2. **Advanced Installation**: Starting from Nextcloud version `30.0.2`, you can install only the server component by setting `DISABLE_WORKER=1` in the environment variables during application installation. In this mode, the server will manage tasks, while external workers (installed elsewhere) will process them.
+2. **Advanced Installation**: Starting from Nextcloud version `31`, you can install only the server component by setting `DISABLE_WORKER=1` in the environment variables during application installation. In this mode, the server will manage tasks, while external workers (installed elsewhere) will process them.
 
 > [!NOTE]
 > Worker authentication uses Nextcloud credentials. If 2FA is enabled, you will need to use an App Password to connect external workers.

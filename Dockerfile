@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 ARG BUILD_TYPE
 
@@ -6,16 +6,21 @@ ARG BUILD_TYPE
 ENV VIX_HOST="127.0.0.1"
 ENV VIX_PORT=8288
 ENV USER_BACKENDS="vix_db;nextcloud"
-ENV FLOWS_DIR="/nc_app_visionatrix_data/vix_flows"
 ENV MODELS_DIR="/nc_app_visionatrix_data/vix_models"
 ENV TASKS_FILES_DIR="/nc_app_visionatrix_data/vix_tasks_files"
-ENV BACKEND_DIR="/Visionatrix/vix_backend"
 ENV VIX_SERVER_FULL_MODELS="1"
 
 RUN apt-get update && apt-get install -y git \
 	python3-dev python3-setuptools netcat-traditional \
 	libxml2-dev libxslt1-dev zlib1g-dev g++ \
-	ffmpeg libsm6 libxext6 lsb-release sudo wget procps nano xmlstarlet
+	ffmpeg libsm6 libxext6 lsb-release sudo wget procps nano xmlstarlet && \
+    apt-get autoclean
+
+ADD ex_app_scripts/common_pgsql.sh /ex_app_scripts/
+RUN chmod +x /ex_app_scripts/common_pgsql.sh
+
+ADD ex_app_scripts/install_pgsql.sh /ex_app_scripts/
+RUN chmod +x /ex_app_scripts/install_pgsql.sh && /ex_app_scripts/install_pgsql.sh && rm /ex_app_scripts/install_pgsql.sh
 
 COPY appinfo/info.xml /info.xml
 
@@ -44,7 +49,12 @@ RUN cd /Visionatrix && \
 RUN cd /Visionatrix && \
     venv/bin/python -m pip install "psycopg[binary]" greenlet && \
     venv/bin/python -m pip install . && \
+	rm -rf ~/.cache/pip
+
+RUN cd /Visionatrix && \
 	venv/bin/python -m visionatrix install && \
+    AUTO_INIT_CONFIG_MODELS_DIR=$MODELS_DIR venv/bin/python scripts/easy_install.py && \
+    rm visionatrix.db && \
 	rm -rf ~/.cache/pip
 
 # Setup nodejs and npm for building the front-end client
