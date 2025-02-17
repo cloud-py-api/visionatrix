@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0 - 2025-02-17]
+
+The Visionatrix service has been updated from version `1.9.0` to `1.11.0`.
+
+### Added
+
+- Many new Flows with `Pencil Sketch Portrait`, `Animal Clothing`, `SD3.5-Large`, `SD3.5-Medium`, `PixArt E`, `Aura Flow` models.
+- New `gemini-2.0-flash-001` model available for selection in settings.
+- Dynamic `LoRAs` support. For most basic Flows you can now easy add new loras from the `CivitAI`!
+- UI: Added a filter for `supported` flows and memory requirements for each flow.
+- UI: Displays required storage size for each model and for all models in a flow.
+- UI: Settings: For `Ollama` now dropdown list with available models displayed.
+- UI: Orphan models are now accessible in `Settings -> ComfyUI`.
+
+### Changed
+
+- All `Remove background` flows now use the new `ComfyUI_BiRefNet_ll` node with new models.
+
 ## [1.1.0 - 2024-12-18]
 
 The [Visionatrix](https://github.com/Visionatrix/Visionatrix) service has been updated from version `1.4.1` to `1.9.0`.

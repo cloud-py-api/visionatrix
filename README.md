@@ -66,5 +66,3 @@ For more information, please refer to the original [Visionatrix documentation](h
 ## Questions
 
 Feel free to ask questions or report issues.
-
-#### We are looking for maintainers for this ExApp (we will provide help)
