@@ -13,7 +13,7 @@ help:
 	@echo " "
 	@echo "  Please use \`make <target>\` where <target> is one of"
 	@echo " "
-	@echo "  build-push        builds CPU images and uploads them to ghcr.io"
+	@echo "  build-push-cpu    builds CPU images and uploads them to ghcr.io"
 	@echo "  build-push-cuda   builds CUDA image and uploads it to ghcr.io"
 	@echo "  build-push-rocm   builds ROCM image and uploads it to ghcr.io"
 	@echo " "
@@ -37,7 +37,7 @@ help:
 build-push-cpu:
 	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION) --build-arg BUILD_TYPE=cpu .
+	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION) --build-arg BUILD_TYPE=cpu .
 
 .PHONY: build-push-cuda
 build-push-cuda:

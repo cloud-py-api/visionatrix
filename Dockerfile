@@ -36,13 +36,13 @@ RUN cd /Visionatrix && \
     ARCH=$(uname -m) && \
     if [ "$ARCH" = "aarch64" ]; then \
         echo "Installing PyTorch for ARM64"; \
-        venv/bin/python -m pip install torch==2.4.1 torchvision torchaudio; \
+        venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio; \
     elif [ "$BUILD_TYPE" = "rocm" ]; then \
         venv/bin/python -m pip install torch==2.4.1 torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1; \
     elif [ "$BUILD_TYPE" = "cpu" ]; then \
-        venv/bin/python -m pip install torch==2.4.1 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
+        venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
     else \
-        venv/bin/python -m pip install torch==2.4.1 torchvision torchaudio; \
+        venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio; \
     fi && \
 	rm -rf ~/.cache/pip
 
@@ -102,4 +102,4 @@ CMD ["/bin/sh", \
 	"/ex_app/lib/main.py", \
 	"/ex_app_scripts/run_visionatrix.sh"]
 
-HEALTHCHECK --interval=2s --timeout=2s --retries=300 CMD /healthcheck.sh
+HEALTHCHECK --interval=5s --timeout=2s --retries=300 CMD /healthcheck.sh

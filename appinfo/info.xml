@@ -17,15 +17,14 @@
 - 🌍 **Multilingual prompts**: Create AI content in any language supported by your chosen language model (e.g., QWEN or Gemini).
 - 🤖 **LLM integration**: Use Ollama (LLM + Vision) and Google Gemini for enhanced functionality.
 - 🖥️ **Hardware support**: Works on both CPU and GPU, with flexibility for various configurations.
+- ✏️ Support for editing workflows by adding LORAs within the Nextcloud interface.
 
 ---
 
 ⚠️ **This version is in beta** as we continue developing key features to deliver a complete and polished product:
 
 - 💬 Chat interface with an AI media assistant.
-- ✏️ Support for editing workflows directly within the Nextcloud interface using the ComfyUI interface.
-- 🔄 On-the-fly model support for [CivitAI](https://civitai.com).
-- ⚙️ Enhanced configuration for ultra low-VRAM GPUs (4 GB) and other performance improvements.
+- 🎨 ComfyUI UI support. *(Planned for release with Nextcloud 32)*
 
 ---
 
@@ -35,12 +34,13 @@ Share your custom workflows, big or small. For guidance on creating AI workflows
 
 📚 For more details, visit the [repository](https://github.com/cloud-py-api/visionatrix) readme.
 	]]></description>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 	<licence>MIT</licence>
 	<author mail="andrey18106x@gmail.com" homepage="https://github.com/andrey18106">Andrey Borysenko</author>
 	<author mail="bigcat88@icloud.com" homepage="https://github.com/bigcat88">Alexander Piskun</author>
 	<namespace>Visionatrix</namespace>
 	<category>tools</category>
+	<category>multimedia</category>
 	<website>https://github.com/cloud-py-api/visionatrix</website>
 	<bugs>https://github.com/cloud-py-api/visionatrix/issues</bugs>
 	<repository type="git">https://github.com/cloud-py-api/visionatrix</repository>
@@ -55,7 +55,7 @@ Share your custom workflows, big or small. For guidance on creating AI workflows
 		<docker-install>
 			<registry>ghcr.io</registry>
 			<image>cloud-py-api/visionatrix</image>
-			<image-tag>1.9.0</image-tag>
+			<image-tag>1.11.0</image-tag>
 		</docker-install>
 		<routes>
 			<route>
