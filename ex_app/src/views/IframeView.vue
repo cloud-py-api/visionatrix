@@ -29,6 +29,9 @@ import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 
 import { APP_API_PROXY_URL_PREFIX, EX_APP_ID } from '../constants/AppAPI.js'
 
+import { getFilePickerBuilder } from '@nextcloud/dialogs'
+import '@nextcloud/dialogs/style.css'
+
 export default {
 	name: 'IframeView',
 	components: {
@@ -58,6 +61,38 @@ export default {
 			this.error = true
 			this.loading = false
 		})
+		window.addEventListener('message', (event) => {
+			if (event.data.type === 'openNextcloudFilePicker') {
+				this.showFilePicker(event)
+			}
+		})
+	},
+	methods: {
+		showFilePicker(event) {
+			if (!event.data.inputParamName) {
+				return
+			}
+			const inputParamName = event.data.inputParamName
+			getFilePickerBuilder(t('visionatrix', 'Select a file'))
+				.setMultiSelect(false)
+				.allowDirectories(false)
+				.addMimeTypeFilter('image/*')
+				.addButton({
+					label: t('visionatrix', 'Select'),
+					callback: (nodes) => {
+						this.sendSelectedFilesToIframe(nodes, inputParamName)
+					},
+				})
+				.build().pick().catch(() => {})
+		},
+		sendSelectedFilesToIframe(nodes, inputParamName) {
+			const files = nodes.map((node) => {
+				return {
+					...node?._data,
+				}
+			})
+			this.$refs.iframe.contentWindow.postMessage({ files, inputParamName }, '*')
+		},
 	},
 }
 </script>
