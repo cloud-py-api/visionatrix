@@ -70,7 +70,7 @@ RUN cd /Visionatrix && \
     rm -rf visionatrix/client && \
     cd web && \
     npm ci && \
-    NUXT_APP_BASE_URL="/index.php/apps/app_api/proxy/visionatrix/" npm run build && \
+    NUXT_APP_BASE_URL="/index.php/apps/app_api/proxy/visionatrix/" NEXTCLOUD_INTEGRATION=true npm run build && \
 	cp -r .output/public ../visionatrix/client && \
     rm -rf node_modules
 
