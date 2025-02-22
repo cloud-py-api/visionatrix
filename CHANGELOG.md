@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1 - 2025-02-23]
+
+The Visionatrix service has been updated from version `1.11.0` to `1.11.1`.
+
+## Added
+
+- Support for `File Picker` to select media files from a Nextcloud instance.
+
+### Fixed
+
+- Now works correctly on fresh installations with no flows installed.
+- Prompt translations using **Gemini** now works correctly.
+
 ## [1.2.0 - 2025-02-17]
 
 The Visionatrix service has been updated from version `1.9.0` to `1.11.0`.
