@@ -6,8 +6,7 @@ ARG BUILD_TYPE
 ENV VIX_HOST="127.0.0.1"
 ENV VIX_PORT=8288
 ENV USER_BACKENDS="vix_db;nextcloud"
-ENV MODELS_DIR="/nc_app_visionatrix_data/vix_models"
-ENV TASKS_FILES_DIR="/nc_app_visionatrix_data/vix_tasks_files"
+ENV BASE_DATA_DIR="/nc_app_visionatrix_data"
 ENV VIX_SERVER_FULL_MODELS="1"
 
 RUN apt-get update && apt-get install -y git \
@@ -38,7 +37,7 @@ RUN cd /Visionatrix && \
         echo "Installing PyTorch for ARM64"; \
         venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio; \
     elif [ "$BUILD_TYPE" = "rocm" ]; then \
-        venv/bin/python -m pip install torch==2.4.1 torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1; \
+        venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2.4; \
     elif [ "$BUILD_TYPE" = "cpu" ]; then \
         venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
     else \
@@ -49,11 +48,7 @@ RUN cd /Visionatrix && \
 RUN cd /Visionatrix && \
     venv/bin/python -m pip install "psycopg[binary]" greenlet && \
     venv/bin/python -m pip install . && \
-	rm -rf ~/.cache/pip
-
-RUN cd /Visionatrix && \
-	venv/bin/python -m visionatrix install && \
-    AUTO_INIT_CONFIG_MODELS_DIR=$MODELS_DIR venv/bin/python scripts/easy_install.py && \
+    venv/bin/python -m visionatrix install && \
     rm visionatrix.db && \
 	rm -rf ~/.cache/pip
 
@@ -80,7 +75,6 @@ RUN cd /Visionatrix && \
 # Setup ExApp dependencies
 COPY ex_app_scripts/init_pgsql.sh /ex_app_scripts/init_pgsql.sh
 COPY ex_app_scripts/entrypoint.sh /ex_app_scripts/entrypoint.sh
-COPY ex_app_scripts/run_visionatrix.sh /ex_app_scripts/run_visionatrix.sh
 
 RUN chmod +x /ex_app_scripts/*.sh
 
@@ -99,7 +93,6 @@ WORKDIR /Visionatrix
 
 CMD ["/bin/sh", \
 	"/ex_app_scripts/entrypoint.sh", \
-	"/ex_app/lib/main.py", \
-	"/ex_app_scripts/run_visionatrix.sh"]
+	"/ex_app/lib/main.py"]
 
 HEALTHCHECK --interval=5s --timeout=2s --retries=300 CMD /healthcheck.sh

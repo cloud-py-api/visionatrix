@@ -1,2 +1,2 @@
-nc-py-api[app]>=0.16.0
+nc-py-api[app]>=0.19.1
 anyio==4.6.2

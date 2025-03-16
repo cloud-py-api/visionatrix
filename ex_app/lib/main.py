@@ -22,7 +22,6 @@ from nc_py_api import NextcloudApp
 from nc_py_api.ex_app import (
     AppAPIAuthMiddleware,
     nc_app,
-    persistent_storage,
     run_app,
     setup_nextcloud_logging,
 )
@@ -43,7 +42,11 @@ from supported_flows import FLOWS_IDS
 # os.environ["APP_PORT"] = "24000"
 # os.environ["APP_ID"] = "visionatrix"
 # os.environ["APP_SECRET"] = "12345"  # noqa
+# os.environ["NC_DEV_SKIP_RUN"] = "1"
 # ---------Enf of configuration values for manual deploy---------
+
+SUPERUSER_NAME = "visionatrix_admin"
+SUPERUSER_PASSWORD = "".join(random.choice(string.ascii_letters + string.digits) for i in range(10))  # noqa
 
 SERVICE_URL = os.environ.get("VISIONATRIX_URL", "http://127.0.0.1:8288")
 
@@ -60,10 +63,7 @@ current_translator = ContextVar("current_translator")
 current_translator.set(translation(os.getenv("APP_ID"), LOCALE_DIR, languages=["en"], fallback=True))
 
 ENABLED_FLAG = NextcloudApp().enabled_state
-SUPERUSER_PASSWORD_PATH = Path(persistent_storage()).joinpath("superuser.txt")
-SUPERUSER_NAME = "visionatrix_admin"
-SUPERUSER_PASSWORD: str = ""
-print(str(SUPERUSER_PASSWORD_PATH), flush=True)  # for development only
+
 INSTALLED_FLOWS = []
 
 PROJECT_ROOT_FOLDER = Path(__file__).parent.parent.parent
@@ -90,9 +90,9 @@ class LocalizationMiddleware(BaseHTTPMiddleware):
 async def lifespan(_app: FastAPI):
     global SUPERUSER_PASSWORD
 
+    SUPERUSER_PASSWORD = os.environ["ADMIN_OVERRIDE"].split(":")[1]
     print(_("Visionatrix"), flush=True)
     setup_nextcloud_logging("visionatrix", logging_level=logging.WARNING)
-    SUPERUSER_PASSWORD = Path(SUPERUSER_PASSWORD_PATH).read_text()
     _t1 = asyncio.create_task(start_nextcloud_provider_registration())  # noqa
     _t2 = asyncio.create_task(start_nextcloud_tasks_polling())  # noqa
     yield
@@ -285,16 +285,20 @@ def poll_tasks(nc: NextcloudApp, basic_auth: httpx.BasicAuth, webhook_url: str, 
     if not reply_from_nc:
         return False
     task_info = reply_from_nc["task"]
+    data = {
+        "prompt": task_info["input"]["input"],
+        "batch_size": min(task_info["input"]["numberOfImages"], 4),
+        "webhook_url": webhook_url + f"/{task_info['id']}",
+        "webhook_headers": webhook_headers,
+    }
+    flow_name = reply_from_nc["provider"]["name"].removeprefix("v_")
+    if flow_name in ("flux1_dev", "flux1_schnell"):
+        data["diffusion_precision"] = "fp8_e4m3fn"
     with httpx.Client(base_url=f"{SERVICE_URL}/vapi") as client:
         vix_task = client.put(
-            url=f"/tasks/create/{reply_from_nc['provider']['name'].removeprefix('v_')}",
+            url=f"/tasks/create/{flow_name}",
             auth=basic_auth,
-            data={
-                "prompt": task_info["input"]["input"],
-                "batch_size": min(task_info["input"]["numberOfImages"], 4),
-                "webhook_url": webhook_url + f"/{task_info['id']}",
-                "webhook_headers": webhook_headers,
-            },
+            data=data,
         )
         LOGGER.debug("task passed to visionatrix, return code: %s", vix_task.status_code)
     return True
@@ -349,36 +353,48 @@ async def start_nextcloud_provider_registration():
     await asyncio.to_thread(background_provider_registration)
 
 
-def generate_random_string(length=10):
-    letters = string.ascii_letters + string.digits  # You can include other characters if needed
-    return "".join(random.choice(letters) for i in range(length))  # noqa
+def start_visionatrix() -> None:
+    if os.environ.get("NC_DEV_SKIP_RUN") != "1":
+        visionatrix_python = "/Visionatrix/venv/bin/python"
+        if os.environ.get("DISABLE_WORKER") != "1":
+            # Run server in background and redirect output to server.log
+            server_log = open("server.log", "wb")
+            subprocess.Popen(
+                [visionatrix_python, "-m", "visionatrix", "run", "--mode=SERVER"],
+                stdout=server_log,
+                stderr=subprocess.STDOUT,
+            )
+            print("[DEBUG]: Launched Visionatrix server in background", flush=True)
+            # Wait a bit to let the server start up
+            sleep(15)
+            # Run worker in background and redirect output to worker.log
+            worker_log = open("worker.log", "wb")
+            subprocess.Popen(
+                [visionatrix_python, "-m", "visionatrix", "run", "--mode=WORKER", "--disable-smart-memory"],
+                stdout=worker_log,
+                stderr=subprocess.STDOUT,
+            )
+            print("[DEBUG]: Launched Visionatrix worker in background", flush=True)
+        else:
+            # Only run server when worker is disabled
+            server_log = open("server.log", "wb")
+            subprocess.Popen(
+                [visionatrix_python, "-m", "visionatrix", "run", "--mode=SERVER"],
+                stdout=server_log,
+                stderr=subprocess.STDOUT,
+            )
+            print("[DEBUG]: Launched Visionatrix server (worker disabled)", flush=True)
 
-
-def venv_run(command: str) -> None:
-    command = f". /Visionatrix/venv/bin/activate && {command}"
-    try:
-        print(f"executing(pwf={os.getcwd()}): {command}", flush=True)
-        subprocess.check_call(command, shell=True)
-    except subprocess.CalledProcessError as e:
-        print("An error occurred while executing command in venv:", str(e), flush=True)
-        raise
-
-
-def initialize_visionatrix() -> None:
     while True:  # Let's wait until Visionatrix opens the port.
         with contextlib.suppress(httpx.ReadError, httpx.ConnectError, httpx.RemoteProtocolError):
             r = httpx.get(SERVICE_URL)
             if r.status_code in (200, 204, 401, 403):
                 break
             sleep(5)
-    if not SUPERUSER_PASSWORD_PATH.exists():
-        password = generate_random_string()
-        # password = "12345"  # uncomment this line and comment next for the developing with local Visionatrix version.
-        venv_run(f"python3 -m visionatrix create-user --name {SUPERUSER_NAME} --password {password}")
-        Path(SUPERUSER_PASSWORD_PATH).write_text(password)
 
 
 if __name__ == "__main__":
-    initialize_visionatrix()
+    os.environ["ADMIN_OVERRIDE"] = f"{SUPERUSER_NAME}:{SUPERUSER_PASSWORD}"
+    start_visionatrix()
     os.chdir(Path(__file__).parent)
     run_app("main:APP", log_level="trace")
