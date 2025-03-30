@@ -4,7 +4,8 @@ APP_ID := visionatrix
 APP_NAME := Visionatrix
 APP_VERSION := $$(xmlstarlet sel -t -v "//version" appinfo/info.xml)
 VISIONATRIX_VERSION := $$(xmlstarlet sel -t -v "//image-tag" appinfo/info.xml)
-JSON_INFO := "{\"id\":\"$(APP_ID)\",\"name\":\"$(APP_NAME)\",\"daemon_config_name\":\"manual_install\",\"version\":\"$(APP_VERSION)\",\"secret\":\"12345\",\"port\":24000, \"routes\": [{\"url\":\".*\",\"verb\":\"GET, POST, PUT, DELETE\",\"access_level\":1,\"headers_to_exclude\":[]}], \"translations_folder\":\"\/tmp\/vix_l10n\"}"
+JSON_INFO := "{\"id\":\"$(APP_ID)\",\"name\":\"$(APP_NAME)\",\"daemon_config_name\":\"manual_install\",\"version\":\"$(APP_VERSION)\",\"secret\":\"12345\",\"port\":23700, \"routes\": [{\"url\":\".*\",\"verb\":\"GET, POST, PUT, DELETE\",\"access_level\":1,\"headers_to_exclude\":[]}], \"translations_folder\":\"\/tmp\/vix_l10n\"}"
+JSON_INFO_HARP := "{\"id\":\"$(APP_ID)\",\"name\":\"$(APP_NAME)\",\"daemon_config_name\":\"manual_install_harp\",\"version\":\"$(APP_VERSION)\",\"secret\":\"12345\",\"port\":23700, \"routes\": [{\"url\":\".*\",\"verb\":\"GET, POST, PUT, DELETE\",\"access_level\":1,\"headers_to_exclude\":[]}], \"translations_folder\":\"\/tmp\/vix_l10n\"}"
 
 
 .PHONY: help
@@ -27,6 +28,7 @@ help:
 	@echo " "
 	@echo "  register30        performs registration of running $(APP_NAME) into the 'manual_install' deploy daemon."
 	@echo "  register          performs registration of running $(APP_NAME) into the 'manual_install' deploy daemon."
+	@echo "  register_harp     performs registration of running $(APP_NAME) into the 'manual_install_harp' deploy daemon."
 	@echo " "
 	@echo "  L10N (for manual translation):"
 	@echo "  translation_templates      extract translation strings from sources"
@@ -35,21 +37,18 @@ help:
 
 .PHONY: build-push-cpu
 build-push-cpu:
-	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION) --build-arg BUILD_TYPE=cpu .
+	DOCKER_BUILDKIT=1 docker buildx build --progress=plain --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION) --build-arg BUILD_TYPE=cpu .
 
 .PHONY: build-push-cuda
 build-push-cuda:
-	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION)-cuda --build-arg BUILD_TYPE=cuda .
+	DOCKER_BUILDKIT=1 docker buildx build --progress=plain --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION)-cuda --build-arg BUILD_TYPE=cuda .
 
 .PHONY: build-push-rocm
 build-push-rocm:
-	npm ci && npm run build
 	docker login ghcr.io
-	docker buildx build --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION)-rocm --build-arg BUILD_TYPE=rocm .
+	DOCKER_BUILDKIT=1 docker buildx build --progress=plain --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION)-rocm --build-arg BUILD_TYPE=rocm .
 
 .PHONY: run30
 run30:
@@ -75,6 +74,12 @@ register:
 	docker exec master-nextcloud-1 rm -rf /tmp/vix_l10n && docker cp ex_app/l10n master-nextcloud-1:/tmp/vix_l10n
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register $(APP_ID) manual_install --json-info $(JSON_INFO) --wait-finish
 
+.PHONY: register_harp
+register_harp:
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister $(APP_ID) --silent --force || true
+	docker exec master-nextcloud-1 rm -rf /tmp/vix_l10n && docker cp ex_app/l10n master-nextcloud-1:/tmp/vix_l10n
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register $(APP_ID) manual_install_harp --json-info $(JSON_INFO_HARP) --wait-finish
+
 .PHONY: translation_templates
 translation_templates:
 	./translationtool.phar create-pot-files
@@ -86,3 +91,9 @@ convert_translations_nc:
 .PHONY: convert_to_locale
 convert_to_locale:
 	./scripts/convert_to_locale.sh
+
+.PHONY: js
+js:
+	rm -rf ex_app/js ex_app/js_harp
+	HARP_ENABLED=1 npm run build && mv ex_app/js ex_app/js_harp
+	npm run build

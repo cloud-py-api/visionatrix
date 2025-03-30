@@ -3,6 +3,7 @@ const webpackConfig = require('@nextcloud/webpack-vue-config')
 const webpackRules = require('@nextcloud/webpack-vue-config/rules')
 const ESLintPlugin = require('eslint-webpack-plugin')
 const StyleLintPlugin = require('stylelint-webpack-plugin')
+const webpack = require('webpack')
 
 const buildMode = process.env.NODE_ENV
 const isDev = buildMode === 'development'
@@ -26,13 +27,21 @@ webpackConfig.plugins.push(
 		extensions: ['js', 'vue'],
 		files: 'ex_app/src',
 		failOnError: !isDev,
-	})
+	}),
 )
 
 webpackConfig.plugins.push(
 	new StyleLintPlugin({
 		files: 'ex_app/src/**/*.{css,scss,vue}',
 		failOnError: !isDev,
+	}),
+)
+
+webpackConfig.plugins.push(
+	new webpack.DefinePlugin({
+		'process.env': {
+			HARP_ENABLED: JSON.stringify(process.env.HARP_ENABLED || ''),
+		},
 	}),
 )
 

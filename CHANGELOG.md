@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.3.0 - 2025-03-xx]
+## [1.3.0 - 2025-03-30]
 
 This release contains breaking changes, first you need to uninstall old app **with its data removal** and after that install this version.
 
@@ -12,11 +12,11 @@ This release contains breaking changes, first you need to uninstall old app **wi
 - **Optional** remote token decoding using HuggingFace for some flows were added.
 - `Surprise Me` - new feature to use LLM to create a random prompt.
 - Many useful small UI additions(`Export flow`, `Editing flow` actions).
-- Added support for `HaRP` deploy type - successor of `DSP`(Nextcloud 32+ only).
+- Added support for `HaRP` deploy type - successor of `DockerSocketProxy`(Nextcloud 32+ only).
 
 ## Changes
 
-- Visionatrix service has been updated from version `1.11.1` to `2.0.1`.
+- Visionatrix service has been updated from version `1.11.1` to `2.1.0`.
 - Now Visionatrix **correctly stores all models and configs** in the configured ExApp storage and no more breaking changes expected.
 
 ## Fixes

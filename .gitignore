@@ -15,6 +15,7 @@ yarn-error.log*
 .marginalia
 
 ex_app/js/
+ex_app/js_harp/
 build/
 coverage/
 vendor
