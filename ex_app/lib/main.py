@@ -33,16 +33,17 @@ from supported_flows import FLOWS_IDS
 
 # ---------Start of configuration values for manual deploy---------
 # Uncommenting the following lines may be useful when installing manually.
-
+#
 # xml_path = Path(__file__).resolve().parent / "../../appinfo/info.xml"
 # os.environ["APP_VERSION"] = ET.parse(xml_path).getroot().find(".//image-tag").text
 #
 # os.environ["NEXTCLOUD_URL"] = "http://nextcloud.local/index.php"
 # os.environ["APP_HOST"] = "0.0.0.0"
-# os.environ["APP_PORT"] = "24000"
+# os.environ["APP_PORT"] = "23700"
 # os.environ["APP_ID"] = "visionatrix"
 # os.environ["APP_SECRET"] = "12345"  # noqa
 # os.environ["NC_DEV_SKIP_RUN"] = "1"
+# os.environ["HP_SHARED_KEY"] = "1"  # uncomment ONLY for "manual-install" with HaRP
 # ---------Enf of configuration values for manual deploy---------
 
 SUPERUSER_NAME = "visionatrix_admin"
@@ -63,11 +64,12 @@ current_translator = ContextVar("current_translator")
 current_translator.set(translation(os.getenv("APP_ID"), LOCALE_DIR, languages=["en"], fallback=True))
 
 ENABLED_FLAG = NextcloudApp().enabled_state
-
+HARP_ENABLED = bool(os.environ.get("HP_SHARED_KEY"))
 INSTALLED_FLOWS = []
 
 PROJECT_ROOT_FOLDER = Path(__file__).parent.parent.parent
 STATIC_FRONTEND_FOLDER = PROJECT_ROOT_FOLDER.joinpath("../Visionatrix/visionatrix/client")
+STATIC_FRONTEND_FOLDER_HARP = PROJECT_ROOT_FOLDER.joinpath("../Visionatrix/visionatrix/client_harp")
 STATIC_FRONTEND_PRESENT = STATIC_FRONTEND_FOLDER.is_dir()
 print("[DEBUG]: PROJECT_ROOT_FOLDER=", PROJECT_ROOT_FOLDER, flush=True)
 print("[DEBUG]: STATIC_FRONTEND_PRESENT=", STATIC_FRONTEND_PRESENT, flush=True)
@@ -109,11 +111,17 @@ def enabled_handler(enabled: bool, nc: NextcloudApp) -> str:
     ENABLED_FLAG = enabled
     if enabled:
         LOGGER.info("Hello from %s", nc.app_cfg.app_name)
-        nc.ui.resources.set_script("top_menu", "visionatrix", "ex_app/js/visionatrix-main")
+        if HARP_ENABLED:
+            nc.ui.resources.set_script("top_menu", "visionatrix", "ex_app/js_harp/visionatrix-main")
+        else:
+            nc.ui.resources.set_script("top_menu", "visionatrix", "ex_app/js/visionatrix-main")
         nc.ui.top_menu.register("visionatrix", "Visionatrix", "ex_app/img/app.svg")
     else:
         LOGGER.info("Bye bye from %s", nc.app_cfg.app_name)
-        nc.ui.resources.delete_script("top_menu", "visionatrix", "ex_app/js/visionatrix-main")
+        if HARP_ENABLED:
+            nc.ui.resources.delete_script("top_menu", "visionatrix", "ex_app/js_harp/visionatrix-main")
+        else:
+            nc.ui.resources.delete_script("top_menu", "visionatrix", "ex_app/js/visionatrix-main")
         nc.ui.top_menu.unregister("visionatrix")
     return ""
 
@@ -136,7 +144,7 @@ def enabled_callback(enabled: bool, nc: typing.Annotated[NextcloudApp, Depends(n
 
 async def proxy_request_to_service(request: Request, path: str, path_prefix: str = ""):
     async with httpx.AsyncClient() as client:
-        url = f"{SERVICE_URL}{path_prefix}/{path}"
+        url = f"{SERVICE_URL}{path_prefix}{path}" if path.startswith("/") else f"{SERVICE_URL}{path_prefix}/{path}"
         headers = {key: value for key, value in request.headers.items() if key.lower() not in ("host", "cookie")}
         if request.method == "GET":
             response = await client.get(
@@ -237,10 +245,16 @@ async def proxy_frontend_requests(request: Request, path: str):
     if path.startswith("ex_app"):
         file_server_path = PROJECT_ROOT_FOLDER.joinpath(path)
     elif STATIC_FRONTEND_PRESENT:
-        if not path:
-            file_server_path = STATIC_FRONTEND_FOLDER.joinpath("index.html")
-        elif STATIC_FRONTEND_FOLDER.joinpath(path).is_file():
-            file_server_path = STATIC_FRONTEND_FOLDER.joinpath(path)
+        if HARP_ENABLED:
+            if not path:
+                file_server_path = STATIC_FRONTEND_FOLDER_HARP.joinpath("index.html")
+            elif STATIC_FRONTEND_FOLDER_HARP.joinpath(path).is_file():
+                file_server_path = STATIC_FRONTEND_FOLDER_HARP.joinpath(path)
+        else:
+            if not path:
+                file_server_path = STATIC_FRONTEND_FOLDER.joinpath("index.html")
+            elif STATIC_FRONTEND_FOLDER.joinpath(path).is_file():
+                file_server_path = STATIC_FRONTEND_FOLDER.joinpath(path)
 
     if file_server_path:
         LOGGER.debug("proxy_FRONTEND_requests: <OK> Returning: %s", file_server_path)
@@ -387,7 +401,7 @@ def start_visionatrix() -> None:
 
     while True:  # Let's wait until Visionatrix opens the port.
         with contextlib.suppress(httpx.ReadError, httpx.ConnectError, httpx.RemoteProtocolError):
-            r = httpx.get(SERVICE_URL)
+            r = httpx.get(SERVICE_URL + "/vapi/other/whoami")
             if r.status_code in (200, 204, 401, 403):
                 break
             sleep(5)

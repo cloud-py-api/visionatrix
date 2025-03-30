@@ -40,10 +40,12 @@ export default {
 		NcLoadingIcon,
 	},
 	data() {
+		const baseUrl = generateUrl(`${APP_API_PROXY_URL_PREFIX}/${EX_APP_ID}/`, {}, { noRewrite: true })
+		const iframeSrcUrl = process.env.HARP_ENABLED ? baseUrl.replace('/index.php', '') : baseUrl
 		return {
 			error: null,
 			loading: true,
-			iframeSrc: generateUrl(`${APP_API_PROXY_URL_PREFIX}/${EX_APP_ID}/`, {}, { noRewrite: true }),
+			iframeSrc: iframeSrcUrl,
 		}
 	},
 	mounted() {

@@ -49,13 +49,13 @@ Share your custom workflows, big or small. For guidance on creating AI workflows
 	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_3_light.jpg</screenshot>
 	<screenshot>https://raw.githubusercontent.com/cloud-py-api/visionatrix/main/screenshots/visionatrix_4_light.jpg</screenshot>
 	<dependencies>
-		<nextcloud min-version="30" max-version="31"/>
+		<nextcloud min-version="30" max-version="32"/>
 	</dependencies>
 	<external-app>
 		<docker-install>
 			<registry>ghcr.io</registry>
 			<image>cloud-py-api/visionatrix</image>
-			<image-tag>2.0.1.dev0</image-tag>
+			<image-tag>2.1.0</image-tag>
 		</docker-install>
 		<routes>
 			<route>
