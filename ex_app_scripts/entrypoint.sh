@@ -10,6 +10,7 @@ if [ -n "$HP_SHARED_KEY" ]; then
         cat <<EOF > /frpc.toml
 serverAddr = "$HP_FRP_ADDRESS"
 serverPort = $HP_FRP_PORT
+loginFailExit = false
 
 transport.tls.enable = true
 transport.tls.certFile = "/certs/frp/client.crt"
@@ -32,6 +33,7 @@ EOF
         cat <<EOF > /frpc.toml
 serverAddr = "$HP_FRP_ADDRESS"
 serverPort = $HP_FRP_PORT
+loginFailExit = false
 
 transport.tls.enable = false
 

@@ -272,16 +272,17 @@ def background_tasks_polling():
 
     basic_auth = httpx.BasicAuth(SUPERUSER_NAME, SUPERUSER_PASSWORD)
     nc = NextcloudApp()
+    headers = {
+        "aa-version": "4.0.0",
+        "ex-app-version": os.environ["APP_VERSION"],
+        "ex-app-id": os.environ["APP_ID"],
+        "authorization-app-api": b64encode(f":{os.environ['APP_SECRET']}".encode()).decode(),
+    }
+    if HARP_ENABLED:
+        headers["x-transport-uds"] = "/tmp/exapp.sock"  # noqa
     ip_address = "127.0.0.1" if os.environ["APP_HOST"] == "0.0.0.0" else os.environ["APP_HOST"]  # noqa
     webhook_url = f"http://{ip_address}:{os.environ['APP_PORT']}/webhooks"  # noqa
-    webhook_headers = json.dumps(
-        {
-            "AA-VERSION": "4.0.0",
-            "EX-APP-VERSION": os.environ["APP_VERSION"],
-            "EX-APP-ID": os.environ["APP_ID"],
-            "AUTHORIZATION-APP-API": b64encode(f":{os.environ['APP_SECRET']}".encode()).decode(),
-        }
-    )
+    webhook_headers = json.dumps(headers)
     while True:
         while ENABLED_FLAG:
             try:
