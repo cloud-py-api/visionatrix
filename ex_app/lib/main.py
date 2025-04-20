@@ -143,7 +143,8 @@ def enabled_callback(enabled: bool, nc: typing.Annotated[NextcloudApp, Depends(n
 
 
 async def proxy_request_to_service(request: Request, path: str, path_prefix: str = ""):
-    async with httpx.AsyncClient() as client:
+    # Creating a task can take a long time if using local LLM(ollama), so set the timeout to 10 minutes.
+    async with httpx.AsyncClient(timeout=600.0) as client:
         url = f"{SERVICE_URL}{path_prefix}{path}" if path.startswith("/") else f"{SERVICE_URL}{path_prefix}/{path}"
         headers = {key: value for key, value in request.headers.items() if key.lower() not in ("host", "cookie")}
         if request.method == "GET":
