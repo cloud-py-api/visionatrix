@@ -27,7 +27,12 @@ import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
 import AlertCircleIcon from 'vue-material-design-icons/AlertCircle.vue'
 import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 
-import { APP_API_PROXY_URL_PREFIX, EX_APP_ID } from '../constants/AppAPI.js'
+import {
+	APP_API_PROXY_URL_PREFIX,
+	APP_API_ROUTER_BASE,
+	EX_APP_ID,
+	EX_APP_MENU_ENTRY_NAME,
+} from '../constants/AppAPI.js'
 
 import { getFilePickerBuilder } from '@nextcloud/dialogs'
 import '@nextcloud/dialogs/style.css'
@@ -42,10 +47,13 @@ export default {
 	data() {
 		const baseUrl = generateUrl(`${APP_API_PROXY_URL_PREFIX}/${EX_APP_ID}/`, {}, { noRewrite: true })
 		const iframeSrcUrl = process.env.HARP_ENABLED ? baseUrl.replace('/index.php', '') : baseUrl
+
 		return {
 			error: null,
 			loading: true,
-			iframeSrc: iframeSrcUrl,
+			iframeBaseUrl: baseUrl,
+			pageBaseUrl: generateUrl(`${APP_API_ROUTER_BASE}/${EX_APP_ID}/${EX_APP_MENU_ENTRY_NAME}`),
+			iframeSrc: this.loadIframeSrcUrlRoute(baseUrl, iframeSrcUrl),
 		}
 	},
 	mounted() {
@@ -63,9 +71,13 @@ export default {
 			this.error = true
 			this.loading = false
 		})
+
 		window.addEventListener('message', (event) => {
 			if (event.data.type === 'openNextcloudFilePicker') {
 				this.showFilePicker(event)
+			}
+			if (event.data.type === 'routeChange') {
+				this.handleIframeRouteChange(event.data.route)
 			}
 		})
 	},
@@ -94,6 +106,51 @@ export default {
 				}
 			})
 			this.$refs.iframe.contentWindow.postMessage({ files, inputParamName }, '*')
+		},
+		loadIframeSrcUrlRoute(iframeSrcUrl) {
+			const pageBaseUrl = generateUrl(`${APP_API_ROUTER_BASE}/${EX_APP_ID}/${EX_APP_MENU_ENTRY_NAME}`)
+			const pagePathRoute = window.location.pathname
+				.replace(pageBaseUrl, '')
+			// fix duplicate slashes, remove starting slash
+			const normalizedPath = pagePathRoute.replace(/^\//, '').replace(/\/\//g, '/')
+
+			if (iframeSrcUrl.endsWith('/')) {
+				iframeSrcUrl = `${iframeSrcUrl}${normalizedPath}`
+			} else {
+				iframeSrcUrl = `${iframeSrcUrl}/${normalizedPath}`
+			}
+
+			// always append ending slash if it is not present
+			if (!iframeSrcUrl.endsWith('/')) {
+				iframeSrcUrl += '/'
+			}
+
+			return iframeSrcUrl
+		},
+		handleIframeRouteChange(route) {
+			if (!route) {
+				return
+			}
+
+			const pageBaseUrl = generateUrl(`${APP_API_ROUTER_BASE}/${EX_APP_ID}/${EX_APP_MENU_ENTRY_NAME}`)
+			// Update window route part after the root path
+			let normalizedPath = route
+			if (route !== '/') {
+				 normalizedPath = route.replace(/^\//, '').replace(/\/\//g, '/')
+				if (this.pageBaseUrl.endsWith('/')) {
+					this.pageBaseUrl = `${pageBaseUrl}${normalizedPath}`
+				} else {
+					this.pageBaseUrl = `${pageBaseUrl}/${normalizedPath}`
+				}
+			} else {
+				this.pageBaseUrl = pageBaseUrl
+			}
+
+			// replace potential duplicate slashes
+			this.pageBaseUrl = this.pageBaseUrl.replace(/\/\//g, '/')
+
+			// change the window path, without history
+			window.history.replaceState({}, '', this.pageBaseUrl)
 		},
 	},
 }
