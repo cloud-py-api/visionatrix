@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0 - 2025-04-23]
+
+This is a version with fixes for bugs we've discovered over the past month.
+
+## Changes
+
+- Visionatrix service has been updated from version `2.1.0` to `2.2.0`.
+
+## Fixed
+
+- UI: Visionatrix UI is now synced with Nextcloud theme, dark theme appearance fixed.
+- UI: Refreshing the page does not redirect you back to the Visionatrix homepage.
+
 ## [1.3.0 - 2025-03-30]
 
 This release contains breaking changes, first you need to uninstall old app **with its data removal** and after that install this version.

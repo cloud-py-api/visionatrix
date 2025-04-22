@@ -37,17 +37,14 @@ help:
 
 .PHONY: build-push-cpu
 build-push-cpu:
-	docker login ghcr.io
 	DOCKER_BUILDKIT=1 docker buildx build --progress=plain --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION) --build-arg BUILD_TYPE=cpu .
 
 .PHONY: build-push-cuda
 build-push-cuda:
-	docker login ghcr.io
 	DOCKER_BUILDKIT=1 docker buildx build --progress=plain --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION)-cuda --build-arg BUILD_TYPE=cuda .
 
 .PHONY: build-push-rocm
 build-push-rocm:
-	docker login ghcr.io
 	DOCKER_BUILDKIT=1 docker buildx build --progress=plain --push --platform linux/amd64 --tag ghcr.io/cloud-py-api/$(APP_ID):$(VISIONATRIX_VERSION)-rocm --build-arg BUILD_TYPE=rocm .
 
 .PHONY: run30
