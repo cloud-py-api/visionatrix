@@ -376,7 +376,7 @@ def start_visionatrix() -> None:
             # Run server in background and redirect output to server.log
             server_log = open("server.log", "wb")
             subprocess.Popen(
-                [visionatrix_python, "-m", "visionatrix", "run", "--mode=SERVER"],
+                [visionatrix_python, "-m", "visionatrix", "run", "--mode=SERVER", "--ui"],
                 stdout=server_log,
                 stderr=subprocess.STDOUT,
             )
