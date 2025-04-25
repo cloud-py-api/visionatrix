@@ -6,9 +6,10 @@ All notable changes to this project will be documented in this file.
 
 This is a version with fixes for bugs we've discovered over the past month.
 
-## Changes
+## Changed
 
 - Visionatrix service has been [updated](https://github.com/Visionatrix/Visionatrix/blob/main/CHANGELOG.md#220---2025-04-21) from version `2.1.0` to `2.2.0`.
+- PyTorch updated from version `2.6` to version `2.7`.
 
 ## Fixed
 
@@ -27,7 +28,7 @@ This release contains breaking changes, first you need to uninstall old app **wi
 - Many useful small UI additions(`Export flow`, `Editing flow` actions).
 - Added support for `HaRP` deploy type - successor of `DockerSocketProxy`(Nextcloud 32+ only).
 
-## Changes
+## Changed
 
 - Visionatrix service has been updated from version `1.11.1` to `2.1.0`.
 - Now Visionatrix **correctly stores all models and configs** in the configured ExApp storage and no more breaking changes expected.

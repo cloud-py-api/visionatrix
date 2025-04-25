@@ -53,13 +53,13 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     ARCH=$(uname -m) && \
     if [ "$ARCH" = "aarch64" ]; then \
         echo "Installing PyTorch for ARM64"; \
-        venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio; \
+        venv/bin/python -m pip install torch==2.7.0 torchvision torchaudio; \
     elif [ "$BUILD_TYPE" = "rocm" ]; then \
-        venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2.4; \
+        venv/bin/python -m pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.3; \
     elif [ "$BUILD_TYPE" = "cpu" ]; then \
-        venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
+        venv/bin/python -m pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
     else \
-        venv/bin/python -m pip install torch==2.6.0 torchvision torchaudio; \
+        venv/bin/python -m pip install torch==2.7.0 torchvision torchaudio; \
     fi
 
 RUN --mount=type=cache,target=/root/.cache/pip \
