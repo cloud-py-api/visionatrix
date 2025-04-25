@@ -2,13 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.4.0 - 2025-04-23]
+## [1.4.0 - 2025-04-25]
 
 This is a version with fixes for bugs we've discovered over the past month.
 
 ## Changes
 
-- Visionatrix service has been updated from version `2.1.0` to `2.2.0`.
+- Visionatrix service has been [updated](https://github.com/Visionatrix/Visionatrix/blob/main/CHANGELOG.md#220---2025-04-21) from version `2.1.0` to `2.2.0`.
 
 ## Fixed
 

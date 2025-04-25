@@ -41,6 +41,7 @@ Share your custom workflows, big or small. For guidance on creating AI workflows
 	<namespace>Visionatrix</namespace>
 	<category>tools</category>
 	<category>multimedia</category>
+	<category>ai</category>
 	<website>https://github.com/cloud-py-api/visionatrix</website>
 	<bugs>https://github.com/cloud-py-api/visionatrix/issues</bugs>
 	<repository type="git">https://github.com/cloud-py-api/visionatrix</repository>
