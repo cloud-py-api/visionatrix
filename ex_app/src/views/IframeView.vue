@@ -125,6 +125,10 @@ export default {
 				iframeSrcUrl += '/'
 			}
 
+			if (process.env.HARP_ENABLED) {
+				iframeSrcUrl = iframeSrcUrl.replace('/index.php', '')
+			}
+
 			return iframeSrcUrl
 		},
 		handleIframeRouteChange(route) {

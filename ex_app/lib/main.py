@@ -375,8 +375,9 @@ def start_visionatrix() -> None:
         if os.environ.get("DISABLE_WORKER") != "1":
             # Run server in background and redirect output to server.log
             server_log = open("server.log", "wb")
+            ui_path = "--ui=visionatrix/client_harp" if HARP_ENABLED else "--ui"
             subprocess.Popen(
-                [visionatrix_python, "-m", "visionatrix", "run", "--mode=SERVER", "--ui"],
+                [visionatrix_python, "-m", "visionatrix", "run", "--mode=SERVER", ui_path],
                 stdout=server_log,
                 stderr=subprocess.STDOUT,
             )
