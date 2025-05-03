@@ -29,7 +29,7 @@ from nc_py_api.ex_app.integration_fastapi import fetch_models_task
 from nc_py_api.ex_app.providers.task_processing import TaskProcessingProvider
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import FileResponse, Response
-from supported_flows import FLOWS_IDS
+from task_processing_flows import FLOWS_IDS
 
 # ---------Start of configuration values for manual deploy---------
 # Uncommenting the following lines may be useful when installing manually.
