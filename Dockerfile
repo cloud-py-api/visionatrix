@@ -62,12 +62,17 @@ RUN --mount=type=cache,target=/root/.cache/pip \
         venv/bin/python -m pip install torch==2.7.0 torchvision torchaudio; \
     fi
 
+COPY ex_app/lib/exclude_nodes.py ex_app/lib/exclude_flows.py /ex_app/lib/
+COPY scripts/ci/get_excludes.py /get_excludes.py
 RUN --mount=type=cache,target=/root/.cache/pip \
     cd /Visionatrix && \
     venv/bin/python -m pip install "psycopg[binary]" greenlet && \
     venv/bin/python -m pip install . && \
-    venv/bin/python -m visionatrix install && \
-    rm visionatrix.db
+    VISIONATRIX_INSTALL_EXCLUDE_NODES="$(python /get_excludes.py nodes)" \
+        venv/bin/python -m visionatrix install && \
+    rm visionatrix.db && \
+    rm /get_excludes.py && \
+    rm -rf /ex_app
 
 # Setup nodejs and npm for building the front-end client
 RUN apt-get update && \

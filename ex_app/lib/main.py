@@ -17,6 +17,8 @@ from pathlib import Path
 from time import sleep
 
 import httpx
+from exclude_flows import EXCLUDE_FLOWS_IDS
+from exclude_nodes import EXCLUDE_NODES_IDS
 from fastapi import BackgroundTasks, Body, Depends, FastAPI, Request, responses
 from nc_py_api import NextcloudApp
 from nc_py_api.ex_app import (
@@ -29,7 +31,7 @@ from nc_py_api.ex_app.integration_fastapi import fetch_models_task
 from nc_py_api.ex_app.providers.task_processing import TaskProcessingProvider
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import FileResponse, Response
-from supported_flows import FLOWS_IDS
+from task_processing_flows import FLOWS_IDS
 
 # ---------Start of configuration values for manual deploy---------
 # Uncommenting the following lines may be useful when installing manually.
@@ -73,6 +75,9 @@ STATIC_FRONTEND_FOLDER_HARP = PROJECT_ROOT_FOLDER.joinpath("../Visionatrix/visio
 STATIC_FRONTEND_PRESENT = STATIC_FRONTEND_FOLDER.is_dir()
 print("[DEBUG]: PROJECT_ROOT_FOLDER=", PROJECT_ROOT_FOLDER, flush=True)
 print("[DEBUG]: STATIC_FRONTEND_PRESENT=", STATIC_FRONTEND_PRESENT, flush=True)
+
+os.environ["VISIONATRIX_INSTALL_EXCLUDE_NODES"] = EXCLUDE_NODES_IDS
+os.environ["VISIONATRIX_EXCLUDE_FLOWS"] = EXCLUDE_FLOWS_IDS
 
 
 def _(text):
