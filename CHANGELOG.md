@@ -2,16 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.1 - 2025-05-08]
+
+### Added
+
+- Automatic update of Flows when App version changes.
+
+### Changed
+
+- Visionatrix service has been updated from version `2.2.0` to `2.3.0`.
+
+### Fixed
+
+- UI: `Page refresh (F5)` action for HaRP. #17
+
 ## [1.4.0 - 2025-04-25]
 
 This is a version with fixes for bugs we've discovered over the past month.
 
-## Changed
+### Changed
 
 - Visionatrix service has been [updated](https://github.com/Visionatrix/Visionatrix/blob/main/CHANGELOG.md#220---2025-04-21) from version `2.1.0` to `2.2.0`.
 - PyTorch updated from version `2.6` to version `2.7`.
 
-## Fixed
+### Fixed
 
 - UI: Visionatrix UI is now synced with Nextcloud theme, dark theme appearance fixed.
 - UI: Refreshing the page does not redirect you back to the Visionatrix homepage.
@@ -20,7 +34,7 @@ This is a version with fixes for bugs we've discovered over the past month.
 
 This release contains breaking changes, first you need to uninstall old app **with its data removal** and after that install this version.
 
-## Added
+### Added
 
 - Many flows were updated, some new flows were added.
 - **Optional** remote token decoding using HuggingFace for some flows were added.
@@ -28,12 +42,12 @@ This release contains breaking changes, first you need to uninstall old app **wi
 - Many useful small UI additions(`Export flow`, `Editing flow` actions).
 - Added support for `HaRP` deploy type - successor of `DockerSocketProxy`(Nextcloud 32+ only).
 
-## Changed
+### Changed
 
 - Visionatrix service has been updated from version `1.11.1` to `2.1.0`.
 - Now Visionatrix **correctly stores all models and configs** in the configured ExApp storage and no more breaking changes expected.
 
-## Fixes
+### Fixed
 
 - Fixed broken flows **Mad Scientist** and **PhotoStickers 2**.
 
@@ -41,7 +55,7 @@ This release contains breaking changes, first you need to uninstall old app **wi
 
 The Visionatrix service has been updated from version `1.11.0` to `1.11.1`.
 
-## Added
+### Added
 
 - Support for `File Picker` to select media files from a Nextcloud instance.
 
