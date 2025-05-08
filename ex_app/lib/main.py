@@ -97,7 +97,7 @@ class LocalizationMiddleware(BaseHTTPMiddleware):
 async def lifespan(_app: FastAPI):
     global SUPERUSER_PASSWORD
 
-    SUPERUSER_PASSWORD = os.environ["ADMIN_OVERRIDE"].split(":")[1]
+    SUPERUSER_PASSWORD = os.environ["VIX_AUTH_ADMIN_OVERRIDE"].split(":")[1]
     print(_("Visionatrix"), flush=True)
     setup_nextcloud_logging("visionatrix", logging_level=logging.WARNING)
     _t1 = asyncio.create_task(start_nextcloud_provider_registration())  # noqa
@@ -376,6 +376,7 @@ async def start_nextcloud_provider_registration():
 
 def start_visionatrix() -> None:
     if os.environ.get("NC_DEV_SKIP_RUN") != "1":
+        os.environ["VIX_AUTH"] = "1"
         visionatrix_python = "/Visionatrix/venv/bin/python"
         if os.environ.get("DISABLE_WORKER") != "1":
             # Run server in background and redirect output to server.log
@@ -416,7 +417,7 @@ def start_visionatrix() -> None:
 
 
 if __name__ == "__main__":
-    os.environ["ADMIN_OVERRIDE"] = f"{SUPERUSER_NAME}:{SUPERUSER_PASSWORD}"
+    os.environ["VIX_AUTH_ADMIN_OVERRIDE"] = f"{SUPERUSER_NAME}:{SUPERUSER_PASSWORD}"
     start_visionatrix()
     os.chdir(Path(__file__).parent)
     run_app("main:APP", log_level="trace")
