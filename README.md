@@ -63,6 +63,22 @@ We offer two types of installation:
 
 For more information, please refer to the original [Visionatrix documentation](https://visionatrix.github.io/VixFlowsDocs/).
 
+## Freeing GPU Memory After Execution
+
+By default, models remain resident in GPU memory after each task. To control this behavior, we’ve added two options on the **Settings → Workers** page:
+
+1. **Smart Memory** (enable/disable)
+2. **Cache Type** (select caching strategy)
+
+If you need GPU memory to be released after task execution, we recommend:
+
+1. **For systems with > 64 GB RAM**
+   Disable **Smart Memory**. This will offload GPU memory to your system RAM, freeing up VRAM.
+
+2. **For systems with ≤ 64 GB RAM**
+   a. Disable **Smart Memory**.
+   b. Set **Cache Type** to **None**.
+
 ## Questions
 
 Feel free to ask questions or report issues.

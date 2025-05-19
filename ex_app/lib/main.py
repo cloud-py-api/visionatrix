@@ -393,7 +393,7 @@ def start_visionatrix() -> None:
             # Run worker in background and redirect output to worker.log
             worker_log = open("worker.log", "wb")
             subprocess.Popen(
-                [visionatrix_python, "-m", "visionatrix", "run", "--mode=WORKER", "--disable-smart-memory"],
+                [visionatrix_python, "-m", "visionatrix", "run", "--mode=WORKER"],
                 stdout=worker_log,
                 stderr=subprocess.STDOUT,
             )

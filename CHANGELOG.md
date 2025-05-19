@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0 - 2025-05-19]
+
+Visionatrix service has been updated from version `2.3.0` to `2.4.1`.
+
+### Added
+
+- New **ACE-Step Audio music flow**.
+- Enabling/disabling ComfyUI `Smart Memory` now should be done from the **Settings -> Workers** UI page. **By default** `Smart memory` from now is enabled.
+- Enabling/disabling ComfyUI `save metadata` option now should be done from the **Settings -> Settings** UI page. **By default** `save metadata` will be disabled.
+- Changing ComfyUI **cache** settings(`lru`, `none`) now should be done from the **Settings -> Workers** UI page.
+- UI option to enable processing `VAE` on the CPU, located in the **Settings -> Workers** page.
+
+### Changed
+
+- CUDA: Updated from `12.6` to `12.8`.
+
 ## [1.4.1 - 2025-05-08]
 
 ### Added

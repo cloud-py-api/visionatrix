@@ -59,7 +59,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     elif [ "$BUILD_TYPE" = "cpu" ]; then \
         venv/bin/python -m pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
     else \
-        venv/bin/python -m pip install torch==2.7.0 torchvision torchaudio; \
+        venv/bin/python -m pip install torch==2.7.0 torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu128; \
     fi
 
 COPY ex_app/lib/exclude_nodes.py ex_app/lib/exclude_flows.py /ex_app/lib/
