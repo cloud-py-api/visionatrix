@@ -34,7 +34,7 @@ Share your custom workflows, big or small. For guidance on creating AI workflows
 
 📚 For more details, visit the [repository](https://github.com/cloud-py-api/visionatrix) readme.
 	]]></description>
-	<version>1.5.0</version>
+	<version>1.5.1</version>
 	<licence>MIT</licence>
 	<author mail="andrey18106x@gmail.com" homepage="https://github.com/andrey18106">Andrey Borysenko</author>
 	<author mail="bigcat88@icloud.com" homepage="https://github.com/bigcat88">Alexander Piskun</author>
@@ -56,7 +56,7 @@ Share your custom workflows, big or small. For guidance on creating AI workflows
 		<docker-install>
 			<registry>ghcr.io</registry>
 			<image>cloud-py-api/visionatrix</image>
-			<image-tag>2.4.1</image-tag>
+			<image-tag>2.5.1</image-tag>
 		</docker-install>
 		<routes>
 			<route>

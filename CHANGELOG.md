@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1 - 2025-06-07]
+
+Visionatrix service has been updated from version `2.4.1` to `2.5.1`.
+
+### Added
+
+- Option to set `reserve-vram` parameter for Workers from UI.
+- Ability to override `smart-memory`, `vae_cpu`, `reserve-vram`, `cache-type` for specific workers from UI.
+
+### Changed
+
+- CUDA: Temporarily reverted update from `12.6` to `12.8`.
+
+### Fixed
+
+- SettingsUI(Workers): correctly display `Smart Memory`, `VRAM State`,.. details.
+- Other different small fixes.
+
 ## [1.5.0 - 2025-05-19]
 
 Visionatrix service has been updated from version `2.3.0` to `2.4.1`.
