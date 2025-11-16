@@ -1,3 +1,9 @@
+## This Repository is Archived
+
+Unfortunately, we can no longer maintain this repository, and it is now archived. We need to move forward, and we thank you for your understanding.
+
+If anyone wants to continue development, you can fork the repository and continue. Please contact the Nextcloud app store administrators to transfer the name "Visionatrix" to your account if you don't want to choose a new name.
+
 # Nextcloud Visionatrix Integration
 
 Introducing scalable AI media processing for Nextcloud.
